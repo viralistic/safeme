@@ -1,0 +1,58 @@
+/* =============================================================================
+   Safety Map — Design Tokens (final)
+   Dark topographic HUD. Deep navy base, cyan/blue HUD accents, poppy red for
+   danger, Geist (light). Liquid-glass controls. Severity scale blue to red.
+   Drop this in as the single source of truth for colors, type and radius.
+============================================================================= */
+
+:root{
+  /* Brand + severity */
+  --red:#ed3a2c;          /* danger, primary CTA tint, hotspots           */
+  --oxblood:#9a2230;      /* mid severity                                  */
+  --powder:#bcd4e6;       /* low severity                                  */
+  --cyan:#38d2ff;         /* HUD highlights, rings, nodes                  */
+  --blue:#1f9cff;         /* contour / data blue                          */
+
+  /* Surfaces (dark) */
+  --page:#070b12;         /* page behind the app / web                    */
+  --bg:#0a0e16;           /* app surface                                   */
+  --fg:#eaf1f8;           /* cool near-white text                          */
+  --muted:#8c9cb1;        /* secondary text                                */
+  --border:rgba(120,160,210,.14);
+  --surface:rgba(140,180,230,.05);
+  --surface2:rgba(140,180,230,.10);
+
+  /* Type */
+  --font:"Geist","Helvetica Neue",Arial,sans-serif;
+  --weight-light:300;     /* body default                                  */
+  --weight-medium:500;    /* headings, buttons                             */
+  --weight-semibold:600;
+
+  /* Shape */
+  --radius:16px;
+  --radius-sm:12px;
+  --radius-pill:9999px;
+}
+
+body{
+  font-family:var(--font);
+  font-weight:var(--weight-light);
+  background:var(--bg);
+  color:var(--fg);
+  -webkit-font-smoothing:antialiased;
+}
+
+/* Headings: Geist medium, tight tracking, near-flat leading */
+h1,h2,h3,.display{font-weight:var(--weight-medium);letter-spacing:-.03em;line-height:1.02}
+
+/* -----------------------------------------------------------------------------
+   Tailwind mapping (tailwind.config.js -> theme.extend.colors):
+   {
+     bg:"var(--bg)", page:"var(--page)", fg:"var(--fg)", muted:"var(--muted)",
+     border:"var(--border)", surface:"var(--surface)",
+     red:"var(--red)", oxblood:"var(--oxblood)", powder:"var(--powder)",
+     cyan:"var(--cyan)", blue:"var(--blue)",
+     severity:{ low:"var(--powder)", mid:"var(--oxblood)", high:"var(--red)" }
+   }
+   Font: Geist (npm `geist`, or Google Fonts "Geist" weights 300;400;500;600).
+----------------------------------------------------------------------------- */

@@ -1,0 +1,173 @@
+@import "tailwindcss";
+@import "../../design/tokens.css";
+@import "@fontsource/geist/300.css";
+@import "@fontsource/geist/400.css";
+@import "@fontsource/geist/500.css";
+@import "@fontsource/geist/600.css";
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-page: var(--page);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-surface: var(--surface);
+  --color-surface2: var(--surface2);
+  --color-red: var(--red);
+  --color-oxblood: var(--oxblood);
+  --color-powder: var(--powder);
+  --color-cyan: var(--cyan);
+  --color-blue: var(--blue);
+  --color-severity-low: var(--powder);
+  --color-severity-mid: var(--oxblood);
+  --color-severity-high: var(--red);
+  --font-sans: var(--font);
+  --radius-glass: var(--radius);
+  --radius-glass-sm: var(--radius-sm);
+}
+
+@layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+  :focus-visible {
+    outline: 2px solid var(--cyan);
+    outline-offset: 2px;
+  }
+  button {
+    cursor: pointer;
+  }
+}
+
+/* -------------------------------------------------------------------------
+   Liquid glass controls (design/liquid-glass.md). Needs <LiquidFilter/> once.
+------------------------------------------------------------------------- */
+@layer components {
+  .glass {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.05));
+    -webkit-backdrop-filter: blur(4px) saturate(1.7);
+    backdrop-filter: url(#liquid) saturate(1.7) blur(0.6px);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.45),
+      inset 0 -10px 18px rgba(255, 255, 255, 0.05),
+      0 10px 26px -12px rgba(0, 0, 0, 0.6);
+  }
+  .glass::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    opacity: 0.6;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.6),
+      rgba(255, 255, 255, 0) 34%,
+      rgba(255, 255, 255, 0) 64%,
+      rgba(255, 255, 255, 0.25)
+    );
+  }
+  .glass > * {
+    position: relative;
+    z-index: 1;
+  }
+  .glass-red {
+    background: linear-gradient(180deg, rgba(239, 66, 54, 0.6), rgba(185, 42, 33, 0.52));
+    border-color: rgba(255, 170, 160, 0.35);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.5),
+      inset 0 -10px 20px rgba(255, 120, 110, 0.14),
+      0 12px 30px -12px rgba(237, 58, 44, 0.55);
+  }
+
+  .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    width: 100%;
+    height: 52px;
+    border-radius: var(--radius-sm);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+  .btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  .btn-ghost {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 44px;
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 500;
+    background: transparent;
+    border: none;
+  }
+  .btn-ghost:hover {
+    color: var(--fg);
+  }
+
+  .chip {
+    width: 44px;
+    height: 44px;
+    border-radius: 9999px;
+    display: grid;
+    place-items: center;
+    background: rgba(10, 13, 20, 0.6);
+    border: 1px solid var(--border);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    color: var(--fg);
+  }
+
+  .display {
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 1.02;
+  }
+
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+  }
+
+  .hotcard {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 170, 160, 0.42);
+    overflow: hidden;
+    background: linear-gradient(180deg, rgba(237, 58, 44, 0.32), rgba(120, 20, 20, 0.3));
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: url(#liquid) blur(2px);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.4),
+      0 14px 32px -10px rgba(0, 0, 0, 0.7);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

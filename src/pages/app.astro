@@ -1,0 +1,11 @@
+---
+import Base from "@/layouts/Base.astro";
+import App from "@/components/app/App";
+import "@/styles/app.css";
+---
+<Base title="Safety Map" description="Zie waar het onveilig is in jouw buurt. Meld in twee tikken." app>
+  <App client:only="react" />
+  <noscript>
+    <p style="padding:24px">Safety Map heeft JavaScript nodig. Bij nood: bel altijd 112.</p>
+  </noscript>
+</Base>

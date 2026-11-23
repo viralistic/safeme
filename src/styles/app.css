@@ -1,0 +1,308 @@
+/* App-only styles: map pins, the category wheel, the spectrum slider. */
+
+.app-root {
+  height: 100dvh;
+  background: var(--page);
+}
+
+.app-frame {
+  position: relative;
+  height: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  overflow: hidden;
+  background: #0b0e16 url("/img/relief.jpg") center/cover;
+}
+
+@media (min-width: 560px) {
+  .app-frame {
+    height: min(100%, 900px);
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 32px;
+    border: 1px solid var(--border);
+    box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.8);
+  }
+}
+
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  background: #0b0e16 url("/img/relief.jpg") center/cover;
+  z-index: 20;
+  animation: screen-in 0.22s ease-out;
+}
+
+@keyframes screen-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* Map ------------------------------------------------------------------- */
+
+.map-wrap {
+  position: absolute;
+  inset: 0;
+  background: #2b2e35;
+}
+.map-wrap .maplibregl-ctrl-attrib,
+.map-wrap .maplibregl-ctrl-attrib.maplibregl-compact {
+  background: rgba(10, 13, 20, 0.6);
+  color: var(--muted);
+  font-size: 10px;
+}
+.map-wrap .maplibregl-ctrl-attrib a {
+  color: var(--muted);
+}
+.map-wrap .maplibregl-ctrl-attrib-button {
+  filter: invert(1);
+  opacity: 0.6;
+}
+
+.pin {
+  position: relative;
+  display: block;
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+.pin .h {
+  width: 22px;
+  height: 22px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  border: 2px solid #2b2e35;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.7);
+  display: grid;
+  place-items: center;
+}
+.pin .h::after {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(11, 14, 22, 0.75);
+}
+.pin.lo .h {
+  width: 18px;
+  height: 18px;
+  background: var(--powder);
+}
+.pin.md .h {
+  background: var(--oxblood);
+}
+.pin.hi .h {
+  width: 26px;
+  height: 26px;
+  background: var(--red);
+}
+.pin.welfare .h {
+  background: #0b0e16;
+  border: 3px solid var(--cyan);
+  box-shadow: 0 0 14px rgba(56, 210, 255, 0.6);
+}
+.pin.welfare .h::after {
+  background: var(--cyan);
+}
+.pin.hi::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 54px;
+  height: 54px;
+  margin: -27px 0 0 -27px;
+  border-radius: 50%;
+  background: var(--red);
+  opacity: 0.3;
+  filter: blur(2px);
+  animation: pin-pulse 2.4s ease-out infinite;
+  pointer-events: none;
+}
+@keyframes pin-pulse {
+  0% {
+    transform: scale(0.4);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1.3);
+    opacity: 0;
+  }
+}
+
+.fab {
+  position: absolute;
+  right: 18px;
+  height: 56px;
+  padding: 0 24px;
+  border-radius: 9999px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* Wheel ----------------------------------------------------------------- */
+
+.wheel {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  -webkit-mask: linear-gradient(180deg, transparent, #000 30%, #000 70%, transparent);
+  mask: linear-gradient(180deg, transparent, #000 30%, #000 70%, transparent);
+}
+.wheel-list {
+  height: 100%;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+  outline: none;
+}
+.wheel-list::-webkit-scrollbar {
+  display: none;
+}
+.wheel-item {
+  scroll-snap-align: center;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0 24px;
+  text-align: left;
+  background: none;
+  border: none;
+  font: inherit;
+  font-size: 29px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--muted);
+  opacity: 0.3;
+  filter: blur(0.4px);
+  transition:
+    opacity 0.15s,
+    font-size 0.15s,
+    color 0.15s;
+}
+.wheel-item.sel {
+  color: #fff;
+  opacity: 1;
+  font-size: 34px;
+  filter: none;
+}
+.wheel-band {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 68px;
+  transform: translateY(-50%);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  pointer-events: none;
+  z-index: 2;
+}
+.wheel-list:focus-visible + .wheel-band {
+  border-color: var(--cyan);
+}
+
+/* Spectrum -------------------------------------------------------------- */
+
+.wash {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  transition: opacity 0.12s;
+}
+.wash.danger {
+  background: linear-gradient(180deg, rgba(215, 52, 43, 0) 8%, rgba(215, 52, 43, 0.5) 58%, rgba(192, 34, 28, 0.95));
+}
+.wash.welfare {
+  background: linear-gradient(180deg, rgba(56, 210, 255, 0) 8%, rgba(31, 156, 255, 0.28) 58%, rgba(31, 120, 220, 0.6));
+}
+.spec-track {
+  position: relative;
+  height: 12px;
+  border-radius: 9999px;
+  margin-top: 8px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+.spec-track.danger {
+  background: linear-gradient(90deg, var(--powder), var(--oxblood) 55%, var(--red));
+}
+.spec-track.welfare {
+  background: linear-gradient(90deg, var(--powder), var(--cyan));
+}
+.spec-range {
+  position: absolute;
+  inset: -12px 0;
+  width: 100%;
+  margin: 0;
+  background: transparent;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.spec-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #0b0e16;
+  border: 3px solid #fff;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.7);
+}
+.spec-range::-moz-range-thumb {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #0b0e16;
+  border: 3px solid #fff;
+}
+.spec-range:focus-visible {
+  outline: none;
+}
+.spec-range:focus-visible::-webkit-slider-thumb {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+/* Switch ---------------------------------------------------------------- */
+
+.switch {
+  width: 48px;
+  height: 28px;
+  border-radius: 9999px;
+  position: relative;
+  flex: 0 0 auto;
+  border: none;
+  background: var(--surface2);
+  transition: background 0.15s;
+}
+.switch[aria-checked="true"] {
+  background: linear-gradient(180deg, #df3a2f, #b92a21);
+}
+.switch::after {
+  content: "";
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  top: 3px;
+  left: 3px;
+  transition: transform 0.15s;
+}
+.switch[aria-checked="true"]::after {
+  transform: translateX(20px);
+}
