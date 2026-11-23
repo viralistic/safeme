@@ -85,8 +85,12 @@ export default function App() {
 
   const go = useCallback((r: Route, replace = false) => {
     const h = hashOf(r);
-    if (replace) history.replaceState(null, "", h);
-    else if (location.hash !== h) history.pushState(null, "", h);
+    try {
+      if (replace) history.replaceState(null, "", h);
+      else if (location.hash !== h) history.pushState(null, "", h);
+    } catch {
+      // Sandboxed frames may refuse history changes. In-memory routing still works.
+    }
     setRoute(r);
   }, []);
 
@@ -118,7 +122,7 @@ export default function App() {
   }, [store, refresh]);
 
   useEffect(() => {
-    if ("serviceWorker" in navigator && import.meta.env.PROD) navigator.serviceWorker.register("/sw.js").catch(() => {});
+    if ("serviceWorker" in navigator && import.meta.env.PROD && !import.meta.env.PUBLIC_SINGLE_FILE) navigator.serviceWorker.register("/sw.js").catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -296,7 +300,7 @@ export default function App() {
               error={submit.error}
               onSeverity={(severity) => setDraft((d) => ({ ...d, severity }))}
               onNote={(note) => setDraft((d) => ({ ...d, note }))}
-              onBack={() => history.back()}
+              onBack={() => go({ name: "melden" })}
               onSubmit={placeReport}
             />
           ) : (

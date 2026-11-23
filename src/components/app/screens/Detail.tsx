@@ -4,6 +4,7 @@ import { level, LEVEL_COLOR, severityLabel } from "@/lib/severity";
 import { ago, minutesSince, remaining, shortDuration } from "@/lib/time";
 import type { FlagReason, PublicReport } from "@/lib/types";
 import Icon from "../Icon";
+import { ASSETS } from "@/lib/assets";
 import { Note112 } from "../ui";
 
 interface Props {
@@ -61,7 +62,7 @@ export default function Detail({ report, confirmed, own, onBack, onConfirm, onFl
   return (
     <section className="screen" aria-labelledby="detail-title">
       <div className="relative h-[238px] shrink-0">
-        <div className="absolute inset-0 bg-[url(/img/detail.jpg)] bg-cover bg-center" />
+        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${ASSETS.detail})` }} />
         <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(7,10,17,.92)_6%,rgba(7,10,17,.35)_48%,rgba(7,10,17,.15))]" />
         <button type="button" className="chip absolute left-5 top-4 z-10" onClick={onBack} aria-label="Terug naar kaart">
           <Icon name="back" size={18} />

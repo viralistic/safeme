@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import Icon from "../Icon";
+import { ASSETS } from "@/lib/assets";
 import { lookupPlace, searchPlaces, type Place } from "@/lib/geo";
 import type { LatLon } from "@/lib/fuzz";
 
@@ -61,7 +62,7 @@ export default function KaartOverlay({ demo, count, onReport, onLocate, onPlace 
         ) : (
           <>
             <div className="flex items-center gap-2">
-              <img src="/icons/icon-160.png" alt="Safety Map" width={40} height={40} className="rounded-xl" />
+              <img src={ASSETS.icon} alt="Safety Map" width={40} height={40} className="rounded-xl" />
               {demo && (
                 <span className="rounded-full border border-border bg-[rgba(10,13,20,.7)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[.14em] text-cyan backdrop-blur">
                   Demo

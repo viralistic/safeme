@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@source "..";
 @import "../../design/tokens.css";
 @import "@fontsource/geist/300.css";
 @import "@fontsource/geist/400.css";

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { getCategory } from "@/lib/categories";
 import Icon from "../Icon";
+import { ASSETS } from "@/lib/assets";
 
 interface Props {
   status: "approved" | "pending";
@@ -15,7 +16,7 @@ export default function Verzonden({ status, category, onDone }: Props) {
   useEffect(() => title.current?.focus(), []);
 
   return (
-    <section className="screen bg-[url(/img/calm.jpg)]! bg-cover bg-center" aria-labelledby="sent-title">
+    <section className="screen bg-cover! bg-center!" style={{ backgroundImage: `url(${ASSETS.calm})` }} aria-labelledby="sent-title">
       <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(7,10,17,.9),rgba(7,10,17,.3)_60%,rgba(7,10,17,.5))]" />
       <div className="relative z-10 flex flex-1 flex-col items-center justify-center gap-5 px-7 text-center">
         <span className="grid h-14 w-14 place-items-center rounded-full border-2 border-white/40 text-white">

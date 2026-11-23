@@ -1,5 +1,6 @@
 import Globe from "@/components/shared/Globe";
 import { Note112 } from "../ui";
+import { ASSETS } from "@/lib/assets";
 
 const HOTSPOTS = [
   { lat: 18, lon: 25, label: "Inbraakpoging" },
@@ -12,7 +13,7 @@ export default function Start({ onAllow, onSkip, busy }: { onAllow: () => void; 
     <section className="screen" aria-labelledby="start-title">
       <div className="absolute inset-0 overflow-hidden">
         <Globe
-          texture="/img/globe-tex.jpg"
+          texture={ASSETS.globeTex}
           hotspots={HOTSPOTS}
           radius={1.85}
           offset={[1.12, -0.95]}

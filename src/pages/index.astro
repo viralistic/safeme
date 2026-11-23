@@ -1,6 +1,7 @@
 ---
 import Base from "@/layouts/Base.astro";
 import Globe from "@/components/shared/Globe";
+import { ASSETS } from "@/lib/assets";
 
 const hotspots = [
   { lat: 22, lon: 20, label: "Inbraakpoging" },
@@ -48,7 +49,7 @@ const steps = [
         </div>
         <Globe
           client:visible
-          texture="/img/globe-tex.jpg"
+          texture={ASSETS.globeTex}
           hotspots={hotspots}
           cameraZ={4.5}
           fov={44}

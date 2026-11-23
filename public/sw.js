@@ -1,6 +1,6 @@
 // Safety Map service worker: offline app shell and Web Push.
 const CACHE = "sm-shell-v1";
-const SHELL = ["/app", "/manifest.webmanifest", "/icons/icon-192.png", "/img/relief.jpg", "/img/calm.jpg", "/img/detail.jpg", "/img/globe-tex.jpg"];
+const SHELL = ["/app", "/manifest.webmanifest", "/icons/icon-192.png"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));

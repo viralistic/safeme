@@ -1,6 +1,6 @@
 // MapLibre map with a severity heat layer and accessible pin markers. No Google Maps.
 import { useEffect, useRef, useState } from "react";
-import type { Map as MlMap, Marker } from "maplibre-gl";
+import type { Map as MlMap, Marker, StyleSpecification } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { getCategory } from "@/lib/categories";
 import { level, severityLabel } from "@/lib/severity";
@@ -11,13 +11,26 @@ import type { PublicReport } from "@/lib/types";
 const STYLE = import.meta.env.PUBLIC_MAP_STYLE || "https://tiles.openfreemap.org/styles/dark";
 
 // Used when the tile server is unreachable: heat and pins still work on a plain grey base.
-const FALLBACK_STYLE = {
-  version: 8 as const,
+const FALLBACK_STYLE: StyleSpecification = {
+  version: 8,
   sources: {},
-  layers: [{ id: "background", type: "background" as const, paint: { "background-color": "#2b2e35" } }],
+  layers: [{ id: "background", type: "background", paint: { "background-color": "#2b2e35" } }],
 };
 
-async function loadStyle(): Promise<string | typeof FALLBACK_STYLE> {
+export interface MapConfig {
+  style: StyleSpecification;
+  maxBounds?: [[number, number], [number, number]];
+  minZoom?: number;
+}
+
+let override: (() => Promise<MapConfig>) | null = null;
+
+/** Replace the tile style, for example with tiles embedded in a single-file demo. */
+export function configureMap(fn: () => Promise<MapConfig>) {
+  override = fn;
+}
+
+async function loadStyle(): Promise<StyleSpecification> {
   try {
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), 6000);
@@ -80,15 +93,17 @@ export default function MapView({ reports, center, flyKey, me, onSelect, onMove 
 
   useEffect(() => {
     let cancelled = false;
-    Promise.all([import("maplibre-gl"), loadStyle()]).then(([mod, style]) => {
+    Promise.all([import("maplibre-gl"), override ? override() : loadStyle().then((style) => ({ style }) as MapConfig)]).then(([mod, cfg]) => {
       if (cancelled || !el.current) return;
+      const { style } = cfg;
       ml.current = mod;
       const map = new mod.Map({
         container: el.current,
         style,
         center: [center.lon, center.lat],
         zoom: 13.6,
-        minZoom: 7,
+        minZoom: cfg.minZoom ?? 7,
+        maxBounds: cfg.maxBounds,
         maxZoom: 17,
         attributionControl: { compact: true },
         pitchWithRotate: false,

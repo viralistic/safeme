@@ -14,18 +14,24 @@ interface Stored extends PublicReport {
   flags: number;
 }
 
+// Falls back to memory when storage is blocked (private windows, sandboxed frames).
+const memory = new Map<string, string>();
+
 function read<T>(key: string, fallback: T): T {
+  let v: string | null | undefined;
   try {
-    const v = localStorage.getItem(key);
-    return v ? (JSON.parse(v) as T) : fallback;
+    v = localStorage.getItem(key);
   } catch {
-    return fallback;
+    v = memory.get(key);
   }
+  return v ? (JSON.parse(v) as T) : fallback;
 }
 
 function write(key: string, v: unknown) {
+  const s = JSON.stringify(v);
+  memory.set(key, s);
   try {
-    localStorage.setItem(key, JSON.stringify(v));
+    localStorage.setItem(key, s);
   } catch {}
 }
 
@@ -190,7 +196,12 @@ export function createDemoStore(getCenter: () => LatLon): ReportStore {
     },
 
     async reset() {
-      [KEY, OWN, CONFIRMED, FLAGGED].forEach((k) => localStorage.removeItem(k));
+      [KEY, OWN, CONFIRMED, FLAGGED].forEach((k) => {
+        memory.delete(k);
+        try {
+          localStorage.removeItem(k);
+        } catch {}
+      });
       emit();
     },
   };

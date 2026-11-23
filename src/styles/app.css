@@ -11,7 +11,7 @@
   max-width: 480px;
   margin: 0 auto;
   overflow: hidden;
-  background: #0b0e16 url("/img/relief.jpg") center/cover;
+  background: #0b0e16 url("../assets/relief.jpg") center/cover;
 }
 
 @media (min-width: 560px) {
@@ -32,7 +32,7 @@
   flex-direction: column;
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
-  background: #0b0e16 url("/img/relief.jpg") center/cover;
+  background: #0b0e16 url("../assets/relief.jpg") center/cover;
   z-index: 20;
   animation: screen-in 0.22s ease-out;
 }
@@ -65,8 +65,8 @@
   opacity: 0.6;
 }
 
+/* No position here: MapLibre positions the marker element absolutely. */
 .pin {
-  position: relative;
   display: block;
   padding: 0;
   border: none;
