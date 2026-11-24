@@ -1,36 +1,81 @@
 {
   "expo": {
-    "name": "mobile",
-    "slug": "mobile",
-    "version": "1.0.0",
+    "name": "Safety Map",
+    "slug": "safety-map",
+    "scheme": "safetymap",
+    "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#070b12",
+    "primaryColor": "#ed3a2c",
     "ios": {
-      "supportsTablet": true
+      "bundleIdentifier": "nl.safetymap.app",
+      "buildNumber": "1",
+      "supportsTablet": false,
+      "config": {
+        "usesNonExemptEncryption": false
+      },
+      "infoPlist": {
+        "CFBundleDevelopmentRegion": "nl",
+        "CFBundleLocalizations": [
+          "nl",
+          "en"
+        ]
+      }
     },
     "android": {
-      "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
-      },
-      "predictiveBackGestureEnabled": false
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
+      "package": "nl.safetymap.app"
     },
     "plugins": [
       "expo-router",
-      "expo-status-bar",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/img/splash.png",
+          "imageWidth": 160,
+          "backgroundColor": "#070b12"
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Safety Map gebruikt je locatie om meldingen in je buurt te tonen en je melding te plaatsen. Je locatie wordt vervaagd tot ongeveer 100 meter."
+        }
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Safety Map gebruikt de microfoon alleen als je zelf een stem opneemt voor een nepgesprek. De opname blijft op je telefoon.",
+          "enableBackgroundPlayback": false,
+          "enableBackgroundRecording": false
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "sounds": [
+            "./assets/sounds/ring.wav"
+          ],
+          "enableBackgroundRemoteNotifications": false
+        }
+      ],
       "@maplibre/maplibre-react-native",
-      "expo-audio",
+      "expo-font",
       "expo-secure-store",
       "expo-localization",
-      "expo-font",
-      "expo-build-properties",
-      "expo-splash-screen"
-    ]
+      "expo-status-bar",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "16.4"
+          }
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": false
+    }
   }
 }

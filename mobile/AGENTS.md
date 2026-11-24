@@ -1,3 +1,11 @@
+# Safety Map: native app
+
+Read the root `AGENTS.md` first: the golden rules (privacy, no person-labeling,
+112, copy without em dashes or emoji) apply here too. Shared logic lives in
+`../src/lib` and is reused through `metro.config.js` (import it as `@shared/...`);
+`src/city.ts` replaces `../src/lib/city.ts` in the app. Wrap new copy in `t()` and
+add the English to `../src/lib/i18n.en.ts`. TestFlight: `../docs/testflight.md`.
+
 This is an Expo/React Native mobile application. Prioritize mobile-first patterns, performance, and cross-platform compatibility.
 
 ## Expo has changed — do not trust your training data

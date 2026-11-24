@@ -1,0 +1,51 @@
+---
+import Base from "@/layouts/Base.astro";
+---
+<Base title="Safety Map | Privacy" description="Hoe Safety Map met je gegevens omgaat.">
+  <main class="mx-auto flex max-w-[680px] flex-col gap-8 px-5 py-14 text-[15px] leading-relaxed text-[#cfd3dd]">
+    <a href="/" class="text-[14px] text-muted">Safety Map</a>
+    <h1 class="display text-[36px] text-fg">Privacy</h1>
+    <p>Safety Map is open source en van niemand. De app is gemaakt om veiligheid te delen zonder dat iemand herkenbaar wordt. Dit staat er in de code, en je kunt het nalezen.</p>
+
+    <section class="flex flex-col gap-3">
+      <h2 class="text-[20px] font-medium text-fg">Wat we opslaan</h2>
+      <ul class="flex list-disc flex-col gap-2 pl-5">
+        <li>Een melding: categorie, ernst, tijd en een plek die is afgerond op een vak van ongeveer 100 meter. Je precieze locatie verlaat je telefoon nooit.</li>
+        <li>Een notitie, als je die schrijft. Alleen moderatoren lezen die. Beschrijvingen van personen worden automatisch verwijderd.</li>
+        <li>Een willekeurige code voor je toestel, zodat we misbruik kunnen beperken. Geen naam, e-mail of telefoonnummer.</li>
+        <li>Voor pushmeldingen: je gebied, afgerond op ongeveer 500 meter.</li>
+      </ul>
+    </section>
+
+    <section class="flex flex-col gap-3">
+      <h2 class="text-[20px] font-medium text-fg">Wat we niet doen</h2>
+      <ul class="flex list-disc flex-col gap-2 pl-5">
+        <li>Geen trackers of advertenties. Geen gegevens verkopen of delen voor reclame.</li>
+        <li>Geen omschrijvingen van personen op de kaart. Categorieën gaan over gedrag en plekken.</li>
+        <li>Opnames voor een nepgesprek blijven op je telefoon en worden nooit verstuurd.</li>
+      </ul>
+    </section>
+
+    <section class="flex flex-col gap-3">
+      <h2 class="text-[20px] font-medium text-fg">Hoe lang</h2>
+      <p>Een melding vervaagt na een paar uur van de kaart. Notities worden gewist zodra een melding verloopt. Na 30 dagen wissen we de melding helemaal.</p>
+    </section>
+
+    <section class="flex flex-col gap-3">
+      <h2 class="text-[20px] font-medium text-fg">Wie ziet wat</h2>
+      <p>Iedereen ziet de openbare kaart. Politie en buurtteams met een account zien dezelfde kaart, aantallen per uur en, voor de politie, signalen van uitbuiting zodra twee mensen dezelfde plek meldden. Niemand ziet wie er meldde.</p>
+      <p>De gegevens staan op een server in de EU die door de beheerders van deze installatie wordt beheerd.</p>
+    </section>
+
+    <section class="flex flex-col gap-3">
+      <h2 class="text-[20px] font-medium text-fg">Je gegevens wissen</h2>
+      <p>In de app, onder Jij, wis je alles wat op je toestel staat. Je meldingen verdwijnen vanzelf. Vragen? Open een issue op <a class="text-cyan underline" href="https://github.com/viralistic/safeme">github.com/viralistic/safeme</a>.</p>
+    </section>
+
+    <section class="flex flex-col gap-3 border-t border-border pt-8">
+      <h2 class="text-[20px] font-medium text-fg">In English</h2>
+      <p>Safety Map stores a report's category, severity, time and a place rounded to about 100 metres, an optional note read only by moderators, and a random device code. No name, email or phone number, no trackers, no ads. Fake call recordings never leave your phone. Reports fade from the map after a few hours and are deleted after 30 days. Nobody, including police, can see who reported.</p>
+    </section>
+    <p class="text-[12px] text-muted">Bij nood: bel altijd 112.</p>
+  </main>
+</Base>

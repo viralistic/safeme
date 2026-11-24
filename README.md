@@ -72,6 +72,16 @@ Back up `DATA_DIR` every night, for example with `sqlite3 data/safety-map.db ".b
 | Buurtteam avondwandeling shown on the public map | `/partner` |
 | Moderation queue, AI first pass, Telegram alerts | `/partner`, `server/moderation.ts` |
 
+## iPhone app
+
+A native React Native (Expo) app in `mobile/` with the map, reporting, Bel me op
+speaker, alerts and the privacy screen. It talks to the same server and reuses
+the shared logic in `src/lib`. To get it on TestFlight, follow `docs/testflight.md`.
+
+```bash
+cd mobile && npm install && npx expo run:ios --device
+```
+
 ## Privacy rules, where they live
 
 | Rule | Code |
