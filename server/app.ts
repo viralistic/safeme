@@ -6,20 +6,28 @@ import { DatabaseSync } from "node:sqlite";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { createHash, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 import { readFile, stat } from "node:fs/promises";
+import { createReadStream } from "node:fs";
 import { extname, join, normalize } from "node:path";
 import * as webpush from "web-push";
 import { getCategory } from "../src/lib/categories.ts";
 import { distanceM, fuzz, inNetherlands } from "../src/lib/fuzz.ts";
+import { moderateNote, type AiConfig } from "./moderation.ts";
 
 export interface Config {
   dbPath: string;
   /** Built site to serve (Astro `dist`). Optional. */
   staticDir?: string;
+  /** Self-hosted map tiles, fonts and sprites, served at /tiles/ with range requests. */
+  tilesDir?: string;
   /** Bearer token for moderation endpoints (n8n). Admin API is off without it. */
   adminToken?: string;
   /** Optional n8n webhook that receives every new report for moderation. */
   webhookUrl?: string;
   webhookSecret?: string;
+  /** Optional AI first pass on notes (OpenAI-compatible endpoint, self-hosted or EU). */
+  ai?: AiConfig;
+  /** Optional Telegram alerts for moderators. */
+  telegram?: { token: string; chatId: string };
   vapid?: { publicKey: string; privateKey: string; subject: string };
   /** Trust X-Forwarded-For (only behind your own reverse proxy). */
   trustProxy?: boolean;
@@ -45,6 +53,7 @@ interface ReportRow {
   reporter_id: string;
   status: Status;
   confidence: number;
+  moderation?: string | null;
 }
 
 class HttpError extends Error {
@@ -55,6 +64,11 @@ class HttpError extends Error {
     this.status = status;
     this.code = code;
   }
+}
+
+function addColumn(db: DatabaseSync, table: string, column: string, type: string) {
+  const cols = db.prepare(`pragma table_info(${table})`).all() as { name: string }[];
+  if (!cols.some((c) => c.name === column)) db.exec(`alter table ${table} add column ${column} ${type}`);
 }
 
 export function migrate(db: DatabaseSync) {
@@ -130,6 +144,7 @@ export function createApp(cfg: Config) {
   const now = cfg.now ?? Date.now;
   const db = new DatabaseSync(cfg.dbPath);
   migrate(db);
+  addColumn(db, "reports", "moderation", "text");
 
   if (cfg.vapid) webpush.setVapidDetails(cfg.vapid.subject, cfg.vapid.publicKey, cfg.vapid.privateKey);
 
@@ -209,6 +224,19 @@ export function createApp(cfg: Config) {
   function pin(id: string) {
     const r = db.prepare(`${PIN_SQL} where r.id = ? and r.status = 'approved' and r.expires_at > ?`).get(id, now()) as Record<string, unknown> | undefined;
     return r ? toPin(r) : null;
+  }
+
+  /** Short alert to the moderators' Telegram chat. Never includes the note or the reporter. */
+  async function alertModerators(text: string) {
+    if (!cfg.telegram) return;
+    try {
+      await fetch(`https://api.telegram.org/bot${cfg.telegram.token}/sendMessage`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ chat_id: cfg.telegram.chatId, text, disable_web_page_preview: true }),
+        signal: AbortSignal.timeout(5000),
+      });
+    } catch {}
   }
 
   async function notifyWebhook(report: ReportRow) {
@@ -309,7 +337,11 @@ export function createApp(cfg: Config) {
       if (recent.length >= 5 || sameCell || !ipReportLimit(ipKey(req))) throw new HttpError(429, "rate_limited");
 
       const removed = (db.prepare("select count(*) n from reports where reporter_id = ? and status = 'removed' and created_at > ?").get(uid, t - 30 * 24 * HOUR) as { n: number }).n;
-      const note = typeof b.note === "string" && b.note.trim() ? b.note.trim().slice(0, 280) : null;
+      let note = typeof b.note === "string" && b.note.trim() ? b.note.trim().slice(0, 280) : null;
+      const check = note ? await moderateNote(note, cfg.ai) : null;
+      // A note that describes who someone is gets dropped; the report itself still counts.
+      if (check?.verdict === "strip_note") note = null;
+      const needsReview = removed > 0 || check?.verdict === "review";
       const row: ReportRow = {
         id: randomUUID(),
         type: cat.type,
@@ -320,14 +352,16 @@ export function createApp(cfg: Config) {
         expires_at: t + cat.ttlMinutes * 60_000,
         note,
         reporter_id: uid,
-        status: removed > 0 ? "pending" : "approved",
-        confidence: removed > 0 ? 0.2 : 0.5,
+        status: needsReview ? "pending" : "approved",
+        confidence: needsReview ? 0.2 : 0.5,
+        moderation: check && check.verdict !== "ok" ? JSON.stringify(check) : null,
       };
       db.prepare(
-        "insert into reports (id, type, category, severity, lat, lon, created_at, expires_at, note, reporter_id, status, confidence) values (?,?,?,?,?,?,?,?,?,?,?,?)",
-      ).run(row.id, row.type, row.category, row.severity, row.lat, row.lon, row.created_at, row.expires_at, row.note, row.reporter_id, row.status, row.confidence);
+        "insert into reports (id, type, category, severity, lat, lon, created_at, expires_at, note, reporter_id, status, confidence, moderation) values (?,?,?,?,?,?,?,?,?,?,?,?,?)",
+      ).run(row.id, row.type, row.category, row.severity, row.lat, row.lon, row.created_at, row.expires_at, row.note, row.reporter_id, row.status, row.confidence, row.moderation ?? null);
 
       void notifyWebhook(row);
+      if (row.status === "pending") void alertModerators(`Nieuwe melding wacht op controle: ${cat.label}${check?.reasons.length ? ` (${check.reasons.join(", ")})` : ""}`);
       if (row.status === "approved") {
         emit();
         void sendPushes(row);
@@ -358,7 +392,10 @@ export function createApp(cfg: Config) {
       db.prepare("insert or ignore into flags (report_id, reporter_id, reason, created_at) values (?, ?, ?, ?)").run(seg[2], uid, reason, now());
       const n = (db.prepare("select count(*) n from flags where report_id = ?").get(seg[2]) as { n: number }).n;
       // Three flags hide the pin until moderation decides.
-      if (n >= 3 && db.prepare("update reports set status = 'pending' where id = ? and status = 'approved'").run(seg[2]).changes) emit();
+      if (n >= 3 && db.prepare("update reports set status = 'pending' where id = ? and status = 'approved'").run(seg[2]).changes) {
+        emit();
+        void alertModerators("Een melding is drie keer gerapporteerd en staat nu op controle.");
+      }
       return { ok: true };
     }
 
@@ -430,6 +467,38 @@ export function createApp(cfg: Config) {
     ".txt": "text/plain; charset=utf-8",
   };
 
+  async function serveTiles(req: IncomingMessage, res: ServerResponse, path: string) {
+    if (!cfg.tilesDir) throw new HttpError(404, "not_found");
+    const clean = normalize(decodeURIComponent(path.slice("/tiles".length))).replace(/^(\.\.[/\\])+/, "");
+    const file = join(cfg.tilesDir, clean);
+    if (!file.startsWith(cfg.tilesDir)) throw new HttpError(404, "not_found");
+    let size: number;
+    try {
+      const st = await stat(file);
+      if (!st.isFile()) throw new Error();
+      size = st.size;
+    } catch {
+      throw new HttpError(404, "not_found");
+    }
+    const type = file.endsWith(".pbf") ? "application/x-protobuf" : TYPES[extname(file)] ?? "application/octet-stream";
+    const range = String(req.headers.range ?? "").match(/^bytes=(\d+)-(\d*)$/);
+    const headers = { "content-type": type, "accept-ranges": "bytes", "cache-control": "public, max-age=86400" };
+    if (range) {
+      const start = Number(range[1]);
+      const end = range[2] ? Math.min(Number(range[2]), size - 1) : size - 1;
+      if (start > end || start >= size) {
+        res.writeHead(416, { "content-range": `bytes */${size}` });
+        res.end();
+        return;
+      }
+      res.writeHead(206, { ...headers, "content-range": `bytes ${start}-${end}/${size}`, "content-length": end - start + 1 });
+      createReadStream(file, { start, end }).pipe(res);
+      return;
+    }
+    res.writeHead(200, { ...headers, "content-length": size });
+    createReadStream(file).pipe(res);
+  }
+
   async function serveStatic(res: ServerResponse, path: string) {
     if (!cfg.staticDir) throw new HttpError(404, "not_found");
     const clean = normalize(decodeURIComponent(path)).replace(/^(\.\.[/\\])+/, "");
@@ -464,7 +533,8 @@ export function createApp(cfg: Config) {
           res.writeHead(200, { "content-type": "application/json" });
           res.end(JSON.stringify(out));
         }
-      } else await serveStatic(res, path);
+      } else if (path.startsWith("/tiles/")) await serveTiles(req, res, path);
+      else await serveStatic(res, path);
     } catch (e) {
       const err = e instanceof HttpError ? e : new HttpError(500, "unknown");
       if (!(e instanceof HttpError)) console.error(e);

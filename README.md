@@ -9,11 +9,14 @@ Not an emergency tool: for emergencies call 112.
 
 ## Stack
 
-- Astro 5 static site with React islands, Tailwind 4 (tokens from `design/tokens.css`), Geist self-hosted.
-- MapLibre GL with OpenFreeMap tiles, Three.js globe, PDOK (Dutch government) for place search.
-- `server/`: a small Node API with SQLite (built into Node 22). No external backend,
-  no American cloud. Run it on any EU host and all data stays there.
-- Optional: self-hosted n8n for moderation (`docs/n8n.md`), Plausible (EU) for analytics.
+- Astro 5 site with React islands, Tailwind 4 (tokens from `design/tokens.css`), Geist self-hosted.
+- MapLibre GL with self-hosted PMTiles (`docs/self-hosted-tiles.md`), Three.js globe, PDOK (Dutch government) for place search.
+- `server/`: a small Node API with SQLite (built into Node 22). It serves the site, the API and the map tiles from one process on your own server.
+- Moderation: rules plus an optional AI first pass (`server/moderation.ts`), Telegram alerts, and people who decide.
+- Optional: self-hosted n8n (`docs/n8n.md`), Plausible (EU) for analytics.
+
+Open source under the AGPL-3.0 licence (`LICENSE`). Nobody owns it: if you run a
+changed copy for others, you share your changes too.
 
 ## Run it
 
@@ -23,43 +26,37 @@ Needs Node 22.18 or newer.
 npm install
 ```
 
-Demo mode (no server, data only in your browser):
-
-```bash
-npm run dev
-```
-
-Full stack (API on :8787, Astro dev proxies `/api` to it):
+Local development, API and site together (Astro proxies `/api` to the API):
 
 ```bash
 npm run dev:api
 ```
 
 ```bash
-PUBLIC_API_URL=/api npm run dev
+npm run dev
 ```
 
 Open http://localhost:4321 for the homepage and http://localhost:4321/app for the app.
 
-## Production
+## Go live on your server
 
-One process serves the site and the API.
+One process serves the site, the API and the tiles. Copy `.env.example` to `.env` and fill it in.
 
 ```bash
-PUBLIC_API_URL=/api npm run build
+npm run build
 ```
 
 ```bash
-ADMIN_TOKEN=change-me DATA_DIR=/var/lib/safety-map npm start
+npm start
 ```
 
-Or with Docker (put Caddy or nginx in front for HTTPS, then set `TRUST_PROXY=true`):
+Or with Docker, behind Caddy or nginx for HTTPS (then set `TRUST_PROXY=true`):
 
 ```bash
-docker build -t safety-map . && docker run -p 8787:8787 -v safety-map-data:/data --env-file .env safety-map
+docker build -t safety-map . && docker run -p 8787:8787 -v safety-map-data:/data -v ./tiles:/tiles --env-file .env safety-map
 ```
 
-All settings are in `.env.example`.
+Back up `DATA_DIR` every night, for example with `sqlite3 data/safety-map.db ".backup data/backup.db"` from cron.
 
 ## Privacy rules, where they live
 
@@ -71,6 +68,7 @@ All settings are in `.env.example`.
 | Pseudonymous reporters | random bearer token, only its hash is stored |
 | Rate limits | 5 per hour, 1 per cell per 30 min, plus per-IP limits on salted hashes |
 | No trackers | no third-party scripts except optional Plausible |
+| Notes never describe people | `server/moderation.ts` strips them, abuse goes to a person |
 
 ## API
 

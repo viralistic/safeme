@@ -5,14 +5,13 @@ import { lookupPlace, searchPlaces, type Place } from "@/lib/geo";
 import type { LatLon } from "@/lib/fuzz";
 
 interface Props {
-  demo: boolean;
   count: number;
   onReport: () => void;
   onLocate: () => void;
   onPlace: (p: LatLon) => void;
 }
 
-export default function KaartOverlay({ demo, count, onReport, onLocate, onPlace }: Props) {
+export default function KaartOverlay({ count, onReport, onLocate, onPlace }: Props) {
   const [searching, setSearching] = useState(false);
   const [q, setQ] = useState("");
   const [results, setResults] = useState<Place[]>([]);
@@ -61,14 +60,7 @@ export default function KaartOverlay({ demo, count, onReport, onLocate, onPlace 
           </div>
         ) : (
           <>
-            <div className="flex items-center gap-2">
-              <img src={ASSETS.icon} alt="Safety Map" width={40} height={40} className="rounded-xl" />
-              {demo && (
-                <span className="rounded-full border border-border bg-[rgba(10,13,20,.7)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[.14em] text-cyan backdrop-blur">
-                  Demo
-                </span>
-              )}
-            </div>
+            <img src={ASSETS.icon} alt="Safety Map" width={40} height={40} className="rounded-xl" />
             <div className="pointer-events-auto flex gap-2">
               <button type="button" className="chip" onClick={onLocate} aria-label="Naar mijn locatie">
                 <Icon name="locate" size={17} />

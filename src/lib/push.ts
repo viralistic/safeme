@@ -2,7 +2,7 @@
 // fuzzed area and sends pushes itself (VAPID keys live on the server only).
 
 import { createApi } from "./apiStore";
-import { API_URL } from "./store";
+import { API_URL, DEMO } from "./store";
 import { fuzz } from "./fuzz";
 import type { AlertPrefs } from "./prefs";
 
@@ -24,7 +24,7 @@ export async function enablePush(prefs: AlertPrefs): Promise<PushState> {
   if (!pushSupported()) return "unsupported";
   const permission = await Notification.requestPermission();
   if (permission !== "granted") return "denied";
-  if (!API_URL || !prefs.area) return "no-backend";
+  if (DEMO || !prefs.area) return "no-backend";
 
   try {
     const api = createApi(API_URL);
@@ -56,6 +56,6 @@ export async function disablePush(): Promise<void> {
   const reg = await navigator.serviceWorker.getRegistration();
   const sub = await reg?.pushManager.getSubscription();
   if (!sub) return;
-  if (API_URL) await createApi(API_URL).call("DELETE", "/push", { endpoint: sub.endpoint }).catch(() => {});
+  if (!DEMO) await createApi(API_URL).call("DELETE", "/push", { endpoint: sub.endpoint }).catch(() => {});
   await sub.unsubscribe();
 }

@@ -67,7 +67,7 @@ describe("copy rules", () => {
     for (const f of files) {
       const text = readFileSync(f, "utf8");
       expect(text.includes("—"), `${f} contains an em dash`).toBe(false);
-      expect(/\p{Extended_Pictographic}/u.test(text), `${f} contains an emoji`).toBe(false);
+      expect(/(?![\u00a9\u00ae\u2122])\p{Extended_Pictographic}/u.test(text), `${f} contains an emoji`).toBe(false);
     }
   });
 });

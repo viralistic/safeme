@@ -196,7 +196,6 @@ export default function App() {
             />
             {route.name === "kaart" && (
               <KaartOverlay
-                demo={store.mode === "demo"}
                 count={reports.length}
                 onReport={() => {
                   setDraft(EMPTY_DRAFT);
@@ -250,8 +249,7 @@ export default function App() {
 
             {route.name === "jij" && (
                 <Jij
-                  mode={store.mode}
-                  onReset={async () => {
+                      onReset={async () => {
                     await disablePush().catch(() => {});
                     await store.reset();
                     clearLocal();

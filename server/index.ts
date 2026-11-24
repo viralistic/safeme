@@ -16,10 +16,13 @@ const vapid =
 const app = createApp({
   dbPath,
   staticDir: env.STATIC_DIR === "" ? undefined : resolve(env.STATIC_DIR ?? resolve(root, "dist")),
+  tilesDir: env.TILES_DIR ? resolve(env.TILES_DIR) : undefined,
   adminToken: env.ADMIN_TOKEN || undefined,
   webhookUrl: env.N8N_WEBHOOK_URL || undefined,
   webhookSecret: env.N8N_WEBHOOK_SECRET || undefined,
   vapid,
+  ai: env.MODERATION_AI_URL && env.MODERATION_AI_MODEL ? { url: env.MODERATION_AI_URL, model: env.MODERATION_AI_MODEL, key: env.MODERATION_AI_KEY || undefined } : undefined,
+  telegram: env.TELEGRAM_BOT_TOKEN && env.TELEGRAM_CHAT_ID ? { token: env.TELEGRAM_BOT_TOKEN, chatId: env.TELEGRAM_CHAT_ID } : undefined,
   trustProxy: env.TRUST_PROXY === "true",
 });
 

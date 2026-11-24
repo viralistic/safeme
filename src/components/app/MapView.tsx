@@ -30,6 +30,28 @@ export function configureMap(fn: () => Promise<MapConfig>) {
   override = fn;
 }
 
+/** PUBLIC_MAP_STYLE=self: tiles, fonts and sprites served by our own server from TILES_DIR. */
+async function selfHostedStyle(ml: typeof import("maplibre-gl")): Promise<StyleSpecification> {
+  const [{ Protocol }, { layers, namedFlavor }] = await Promise.all([import("pmtiles"), import("@protomaps/basemaps")]);
+  const protocol = new Protocol();
+  ml.addProtocol("pmtiles", protocol.tile);
+  const file = import.meta.env.PUBLIC_TILES_FILE || "netherlands.pmtiles";
+  const origin = location.origin;
+  return {
+    version: 8,
+    glyphs: `${origin}/tiles/fonts/{fontstack}/{range}.pbf`,
+    sprite: `${origin}/tiles/sprites/v4/dark`,
+    sources: {
+      protomaps: {
+        type: "vector",
+        url: `pmtiles://${origin}/tiles/${file}`,
+        attribution: "© OpenStreetMap",
+      },
+    },
+    layers: layers("protomaps", namedFlavor("dark"), { lang: "nl" }) as StyleSpecification["layers"],
+  };
+}
+
 async function loadStyle(): Promise<StyleSpecification> {
   try {
     const ctrl = new AbortController();
@@ -93,7 +115,14 @@ export default function MapView({ reports, center, flyKey, me, onSelect, onMove 
 
   useEffect(() => {
     let cancelled = false;
-    Promise.all([import("maplibre-gl"), override ? override() : loadStyle().then((style) => ({ style }) as MapConfig)]).then(([mod, cfg]) => {
+    import("maplibre-gl")
+      .then(async (mod) => {
+        const cfg: MapConfig = override
+          ? await override()
+          : { style: STYLE === "self" ? await selfHostedStyle(mod).catch(() => FALLBACK_STYLE) : await loadStyle() };
+        return [mod, cfg] as const;
+      })
+      .then(([mod, cfg]) => {
       if (cancelled || !el.current) return;
       const { style } = cfg;
       ml.current = mod;

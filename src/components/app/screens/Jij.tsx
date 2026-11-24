@@ -9,7 +9,7 @@ const RULES: { icon: "lock" | "pin" | "clock" | "user"; title: string; body: str
   { icon: "clock", title: "Meldingen verdwijnen vanzelf", body: "Na een paar uur vervaagt een melding van de kaart. Na 30 dagen wissen we hem helemaal." },
 ];
 
-export default function Jij({ mode, onReset }: { mode: "demo" | "live"; onReset: () => void }) {
+export default function Jij({ onReset }: { onReset: () => void }) {
   const [sure, setSure] = useState(false);
   return (
     <section className="screen" aria-labelledby="jij-title">
@@ -50,7 +50,12 @@ export default function Jij({ mode, onReset }: { mode: "demo" | "live"; onReset:
               <span>Wis mijn gegevens op dit toestel</span>
             </button>
           )}
-          <p className="mt-3 text-center text-[11px] text-muted">{mode === "demo" ? "Demo: meldingen staan alleen op dit toestel." : "Verbonden met Safety Map."}</p>
+          <p className="mt-3 text-center text-[11px] text-muted">
+            Safety Map is open source.{" "}
+            <a className="underline" href="https://github.com/viralistic/safeme" target="_blank" rel="noopener">
+              Bekijk de code
+            </a>
+          </p>
           <Note112 />
         </div>
       </div>

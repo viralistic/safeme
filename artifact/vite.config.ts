@@ -10,6 +10,7 @@ export default defineConfig({
   envPrefix: "PUBLIC_",
   define: {
     "import.meta.env.PUBLIC_API_URL": JSON.stringify(""),
+    "import.meta.env.PUBLIC_DEMO": JSON.stringify("true"),
     "import.meta.env.PUBLIC_PLAUSIBLE_DOMAIN": JSON.stringify(""),
     "import.meta.env.PUBLIC_SINGLE_FILE": JSON.stringify("true"),
   },
