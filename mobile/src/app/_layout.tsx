@@ -4,6 +4,7 @@ import { StatusBar } from "expo-status-bar";
 import * as SplashScreen from "expo-splash-screen";
 import { useFonts } from "expo-font";
 import { AppProvider } from "@/state";
+import CallWatcher from "@/components/CallWatcher";
 import { C } from "@/theme";
 
 void SplashScreen.preventAutoHideAsync();
@@ -35,6 +36,7 @@ export default function Root() {
         <Stack.Screen name="bel-me" options={{ presentation: "formSheet", sheetAllowedDetents: [0.72, 1], sheetGrabberVisible: true }} />
         <Stack.Screen name="call" options={{ presentation: "fullScreenModal", gestureEnabled: false, animation: "fade" }} />
       </Stack>
+      <CallWatcher />
     </AppProvider>
   );
 }

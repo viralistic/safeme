@@ -282,6 +282,8 @@ export const EN: Record<string, string> = {
   "CBS Veiligheidsmonitor": "CBS Safety Monitor (Statistics Netherlands)",
   "Cijfers per maand": "Monthly figures",
   "Hoe rustig het is, zonder losse meldingen.": "How calm it is, without single reports.",
+  "Pushmeldingen in de app komen in een volgende versie. Je keuze is bewaard.": "Push alerts in the app arrive in a later version. Your choice is saved.",
+  Hoi: "Hi",
   // Language
   Taal: "Language",
 };
