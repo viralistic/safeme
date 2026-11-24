@@ -6,12 +6,16 @@ import type { LatLon } from "@/lib/fuzz";
 
 interface Props {
   count: number;
+  tonight: boolean;
+  summary: string;
+  onTonight: (on: boolean) => void;
+  onCall: () => void;
   onReport: () => void;
   onLocate: () => void;
   onPlace: (p: LatLon) => void;
 }
 
-export default function KaartOverlay({ count, onReport, onLocate, onPlace }: Props) {
+export default function KaartOverlay({ count, tonight, summary, onTonight, onCall, onReport, onLocate, onPlace }: Props) {
   const [searching, setSearching] = useState(false);
   const [q, setQ] = useState("");
   const [results, setResults] = useState<Place[]>([]);
@@ -91,8 +95,27 @@ export default function KaartOverlay({ count, onReport, onLocate, onPlace }: Pro
           <span className="flex items-center gap-1.5"><i className="block h-3 w-3 rounded-full bg-red" />Hoog</span>
           <span className="flex items-center gap-1.5"><i className="block h-2.5 w-2.5 rounded-full border-2 border-cyan" />Hulp</span>
         </div>
-        <p className="sr-only" aria-live="polite">{count} actieve meldingen in beeld</p>
+        <div className="pointer-events-auto flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            aria-pressed={tonight}
+            onClick={() => onTonight(!tonight)}
+            className={`flex h-8 items-center gap-1.5 rounded-full border px-3 text-[11px] font-semibold backdrop-blur ${tonight ? "border-[rgba(56,210,255,.5)] bg-[rgba(56,210,255,.18)] text-white" : "border-border bg-[rgba(10,13,20,.72)] text-muted"}`}
+          >
+            <Icon name="moon" size={13} />
+            Vanavond
+          </button>
+          <span className="rounded-full border border-border bg-[rgba(10,13,20,.72)] px-3 py-1.5 text-[11px] text-[#cfd3dd] backdrop-blur" aria-live="polite">
+            {summary}
+          </span>
+        </div>
+        <p className="sr-only">{count} actieve meldingen op de kaart</p>
       </div>
+
+      <button type="button" className="glass absolute bottom-[90px] left-4 z-10 flex h-14 items-center gap-2 rounded-full px-5 text-[12px] font-semibold uppercase tracking-[.1em]" onClick={onCall}>
+        <Icon name="phone" size={17} />
+        <span>Bel me</span>
+      </button>
 
       <button type="button" className="fab glass glass-red bottom-[90px] z-10" onClick={onReport}>
         <Icon name="plus" size={17} />

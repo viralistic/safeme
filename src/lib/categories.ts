@@ -13,7 +13,9 @@ export type IconName =
   | "footsteps"
   | "alert"
   | "bag"
-  | "shield";
+  | "shield"
+  | "lamp"
+  | "flame";
 
 export interface Category {
   id: string;
@@ -23,6 +25,10 @@ export interface Category {
   welfare?: boolean;
   /** How long a report stays on the map, in minutes. */
   ttlMinutes: number;
+  /** Urgent: the 112 screen comes first, whatever the severity. */
+  urgent?: boolean;
+  /** Also passed on to the city's public space reporting. */
+  forward?: "city";
   icon: IconName;
 }
 
@@ -32,6 +38,8 @@ export const CATEGORIES: Category[] = [
   { id: "inbraakpoging", type: "situation", label: "Inbraakpoging", ttlMinutes: 720, icon: "door" },
   { id: "iemand-in-nood", type: "situation", label: "Iemand in nood", welfare: true, ttlMinutes: 60, icon: "hand" },
   { id: "onveilig-gevoel", type: "situation", label: "Onveilig gevoel", ttlMinutes: 240, icon: "eye" },
+  { id: "donkere-plek", type: "situation", label: "Donkere plek", ttlMinutes: 4320, icon: "lamp", forward: "city" },
+  { id: "rook-of-alarm", type: "situation", label: "Rook of alarm", ttlMinutes: 60, icon: "flame", urgent: true },
 
   { id: "nageroepen", type: "incident", label: "Nageroepen", ttlMinutes: 240, icon: "megaphone" },
   { id: "gevolgd", type: "incident", label: "Gevolgd", ttlMinutes: 360, icon: "footsteps" },

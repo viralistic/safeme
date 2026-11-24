@@ -63,10 +63,16 @@ export default function MeldenErnst({ category, severity, note, locationSource, 
           <span>{welfare ? "Direct hulp" : "Direct gevaar"}</span>
         </div>
 
-        {lv === "high" && (
-          <p className="mt-6 rounded-xl border border-[rgba(255,170,160,.35)] bg-[rgba(237,58,44,.14)] px-4 py-3 text-[13px] leading-snug text-white" role="note">
-            Is er nu gevaar? Bel eerst <b className="font-semibold">112</b>. Melden kan daarna.
+        {cat?.urgent ? (
+          <p className="mt-6 rounded-xl border border-[rgba(255,170,160,.35)] bg-[rgba(237,58,44,.22)] px-4 py-3 text-[14px] leading-snug text-white" role="alert">
+            Zie je vuur of rook uit een gebouw? Bel eerst <b className="font-semibold">112</b>. Melden kan daarna, zodat de buren het weten.
           </p>
+        ) : (
+          lv === "high" && (
+            <p className="mt-6 rounded-xl border border-[rgba(255,170,160,.35)] bg-[rgba(237,58,44,.14)] px-4 py-3 text-[13px] leading-snug text-white" role="note">
+              Is er nu gevaar? Bel eerst <b className="font-semibold">112</b>. Melden kan daarna.
+            </p>
+          )
         )}
 
         <div className="mt-8 flex items-center gap-3 border-t border-border py-4">

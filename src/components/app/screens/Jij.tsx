@@ -9,7 +9,7 @@ const RULES: { icon: "lock" | "pin" | "clock" | "user"; title: string; body: str
   { icon: "clock", title: "Meldingen verdwijnen vanzelf", body: "Na een paar uur vervaagt een melding van de kaart. Na 30 dagen wissen we hem helemaal." },
 ];
 
-export default function Jij({ onReset }: { onReset: () => void }) {
+export default function Jij({ onReset, onCalls }: { onReset: () => void; onCalls: () => void }) {
   const [sure, setSure] = useState(false);
   return (
     <section className="screen" aria-labelledby="jij-title">
@@ -26,6 +26,15 @@ export default function Jij({ onReset }: { onReset: () => void }) {
             </li>
           ))}
         </ul>
+
+        <button type="button" className="mt-4 flex w-full items-center gap-3 rounded-2xl border border-border bg-surface p-4 text-left" onClick={onCalls}>
+          <Icon name="phone" size={18} className="shrink-0 text-cyan" />
+          <span className="flex-1">
+            <span className="block text-[14px] font-medium">Nepgesprek instellen</span>
+            <span className="mt-0.5 block text-[13px] leading-snug text-muted">Kies wie er belt en neem hun stem op.</span>
+          </span>
+          <Icon name="back" size={16} className="rotate-180 text-muted" />
+        </button>
 
         <div className="mt-4 rounded-2xl border border-border bg-surface p-4">
           <p className="text-[14px] font-medium">Geen alarmdienst</p>

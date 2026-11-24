@@ -19,6 +19,8 @@ const BY_CATEGORY: Record<string, NextStep[]> = {
   inbraakpoging: [ANONYMOUS, POLICE_REPORT],
   "iemand-in-nood": [],
   "onveilig-gevoel": [],
+  "donkere-plek": [{ label: "Ook melden bij de gemeente", href: "https://meldingen.amsterdam.nl", detail: "Kapotte lamp of donkere plek in de openbare ruimte" }],
+  "rook-of-alarm": [],
   nageroepen: [DISCRIMINATION, SEXUAL],
   gevolgd: [POLICE_REPORT, VICTIM],
   bedreigd: [POLICE_REPORT, VICTIM, DISCRIMINATION],

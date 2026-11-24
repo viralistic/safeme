@@ -247,6 +247,7 @@ export function createApp(cfg: Config) {
         headers: { "content-type": "application/json", ...(cfg.webhookSecret ? { authorization: `Bearer ${cfg.webhookSecret}` } : {}) },
         body: JSON.stringify({
           event: "report.created",
+          forward: getCategory(report.category)?.forward ?? null,
           report: { ...report, reporter_id: undefined, created_at: new Date(report.created_at).toISOString(), expires_at: new Date(report.expires_at).toISOString() },
         }),
         signal: AbortSignal.timeout(5000),

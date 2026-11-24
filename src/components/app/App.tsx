@@ -8,6 +8,11 @@ import Verzonden from "./screens/Verzonden";
 import Detail from "./screens/Detail";
 import Meldingen from "./screens/Meldingen";
 import Jij from "./screens/Jij";
+import Bellen from "./screens/Bellen";
+import { CallScreen, CallSheet } from "./FakeCall";
+import { clearScenarios, type Scenario } from "@/lib/fakecall";
+import { getCategory } from "@/lib/categories";
+import { distanceM } from "@/lib/fuzz";
 import { BottomNav, type Tab } from "./ui";
 import { createStore } from "@/lib/store";
 import { fuzz, inNetherlands, type LatLon } from "@/lib/fuzz";
@@ -25,7 +30,8 @@ type Route =
   | { name: "verzonden" }
   | { name: "detail"; id: string }
   | { name: "meldingen" }
-  | { name: "jij" };
+  | { name: "jij" }
+  | { name: "bellen" };
 
 const ONBOARDED = "sm.onboarded";
 
@@ -38,6 +44,7 @@ function parse(hash: string): Route {
     case "verzonden":
     case "meldingen":
     case "jij":
+    case "bellen":
       return { name: a };
     case "melding":
       return b ? { name: "detail", id: b } : { name: "kaart" };
@@ -82,6 +89,20 @@ export default function App() {
   const [pushBusy, setPushBusy] = useState(false);
   const [pushStatus, setPushStatus] = useState<string | null>(null);
   const [, setTick] = useState(0);
+  const [tonight, setTonight] = useState(false);
+  const [viewCenter, setViewCenter] = useState<LatLon>(centerRef.current);
+  const [callSheet, setCallSheet] = useState(false);
+  const [pendingCall, setPendingCall] = useState<{ scenario: Scenario; at: number } | null>(null);
+  const [activeCall, setActiveCall] = useState<Scenario | null>(null);
+
+  useEffect(() => {
+    if (!pendingCall) return;
+    const t = setTimeout(() => {
+      setActiveCall(pendingCall.scenario);
+      setPendingCall(null);
+    }, Math.max(0, pendingCall.at - Date.now()));
+    return () => clearTimeout(t);
+  }, [pendingCall]);
 
   const go = useCallback((r: Route, replace = false) => {
     const h = hashOf(r);
@@ -178,6 +199,15 @@ export default function App() {
     go({ name: "verzonden" }, true);
   }
 
+  // "Vanavond": only what was reported in the last six hours.
+  const shown = tonight ? reports.filter((r) => Date.now() - new Date(r.created_at).getTime() < 6 * 3_600_000) : reports;
+  const near = shown.filter((r) => distanceM(r, viewCenter) <= 1000);
+  const nearHigh = near.filter((r) => r.severity >= 67 && !getCategory(r.category)?.welfare).length;
+  const summary =
+    near.length === 0
+      ? "Rustig binnen 1 km"
+      : `${near.length} ${near.length === 1 ? "melding" : "meldingen"} binnen 1 km${nearHigh ? `, ${nearHigh} direct gevaar` : ", geen direct gevaar"}`;
+
   const tab: Tab | null = route.name === "kaart" ? "kaart" : route.name === "meldingen" ? "meldingen" : route.name === "jij" ? "jij" : null;
   const selected = route.name === "detail" ? reports.find((r) => r.id === route.id) ?? null : null;
 
@@ -187,16 +217,23 @@ export default function App() {
         <div className="absolute inset-0 flex flex-col">
           <div className="relative flex-1">
             <MapView
-              reports={reports}
+              reports={shown}
               center={center}
               flyKey={flyKey}
               me={me}
               onSelect={(r) => go({ name: "detail", id: r.id })}
-              onMove={(c) => (centerRef.current = c)}
+              onMove={(c) => {
+                centerRef.current = c;
+                setViewCenter(c);
+              }}
             />
             {route.name === "kaart" && (
               <KaartOverlay
-                count={reports.length}
+                count={shown.length}
+                tonight={tonight}
+                summary={summary}
+                onTonight={setTonight}
+                onCall={() => setCallSheet(true)}
                 onReport={() => {
                   setDraft(EMPTY_DRAFT);
                   setSubmit({ busy: false, error: null, status: "approved" });
@@ -249,7 +286,9 @@ export default function App() {
 
             {route.name === "jij" && (
                 <Jij
-                      onReset={async () => {
+                  onCalls={() => go({ name: "bellen" })}
+                  onReset={async () => {
+                    await clearScenarios();
                     await disablePush().catch(() => {});
                     await store.reset();
                     clearLocal();
@@ -335,6 +374,32 @@ export default function App() {
           />
         )}
 
+        {route.name === "bellen" && <Bellen onBack={() => go({ name: "jij" })} />}
+
+        {pendingCall && !activeCall && (
+          <div className="absolute inset-x-0 top-[calc(env(safe-area-inset-top)+64px)] z-30 flex justify-center">
+            <button type="button" className="rounded-full border border-border bg-[rgba(10,13,20,.85)] px-4 py-2 text-[12px] text-[#cfd3dd] backdrop-blur" onClick={() => setPendingCall(null)}>
+              Gesprek komt eraan · tik om te annuleren
+            </button>
+          </div>
+        )}
+
+        {callSheet && (
+          <CallSheet
+            onClose={() => setCallSheet(false)}
+            onSetup={() => {
+              setCallSheet(false);
+              go({ name: "bellen" });
+            }}
+            onStart={(scenario, delaySec) => {
+              setCallSheet(false);
+              if (delaySec === 0) setActiveCall(scenario);
+              else setPendingCall({ scenario, at: Date.now() + delaySec * 1000 });
+            }}
+          />
+        )}
+
+        {activeCall && <CallScreen scenario={activeCall} onEnd={() => setActiveCall(null)} />}
       </div>
     </div>
   );
