@@ -29,6 +29,8 @@ export interface Category {
   urgent?: boolean;
   /** Also passed on to the city's public space reporting. */
   forward?: "city";
+  /** Never on the public map. Police see it once two people report the same place. */
+  private?: boolean;
   icon: IconName;
 }
 
@@ -40,6 +42,7 @@ export const CATEGORIES: Category[] = [
   { id: "onveilig-gevoel", type: "situation", label: "Onveilig gevoel", ttlMinutes: 240, icon: "eye" },
   { id: "donkere-plek", type: "situation", label: "Donkere plek", ttlMinutes: 4320, icon: "lamp", forward: "city" },
   { id: "rook-of-alarm", type: "situation", label: "Rook of alarm", ttlMinutes: 60, icon: "flame", urgent: true },
+  { id: "uitbuiting", type: "situation", label: "Uitbuiting", ttlMinutes: 10080, icon: "eye", private: true },
 
   { id: "nageroepen", type: "incident", label: "Nageroepen", ttlMinutes: 240, icon: "megaphone" },
   { id: "gevolgd", type: "incident", label: "Gevolgd", ttlMinutes: 360, icon: "footsteps" },

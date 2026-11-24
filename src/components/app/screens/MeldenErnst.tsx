@@ -14,11 +14,14 @@ interface Props {
   error: string | null;
   onSeverity: (n: number) => void;
   onNote: (s: string) => void;
+  hate?: boolean;
+  /** Only for "Overkomt mij": a private hate-motive tag. */
+  onHate?: (on: boolean) => void;
   onBack: () => void;
   onSubmit: () => void;
 }
 
-export default function MeldenErnst({ category, severity, note, locationSource, busy, error, onSeverity, onNote, onBack, onSubmit }: Props) {
+export default function MeldenErnst({ category, severity, note, locationSource, busy, error, onSeverity, onNote, hate, onHate, onBack, onSubmit }: Props) {
   const cat = getCategory(category);
   const welfare = !!cat?.welfare;
   const [noteOpen, setNoteOpen] = useState(note.length > 0);
@@ -82,6 +85,22 @@ export default function MeldenErnst({ category, severity, note, locationSource, 
             <span className="text-[11px] font-light text-muted"> · vervaagd tot ±100m</span>
           </div>
         </div>
+
+        {cat?.private && (
+          <p className="mb-4 rounded-xl border border-border bg-surface px-4 py-3 text-[13px] leading-snug text-[#cfd3dd]" role="note">
+            Deze melding komt niet op de openbare kaart. Alleen de politie ziet hem, en pas als nog iemand dezelfde plek meldt. Beschrijf wat je hoorde of zag, niet hoe iemand eruitziet.
+          </p>
+        )}
+
+        {onHate && (
+          <div className="mb-4 flex items-center justify-between gap-4 border-b border-border pb-4">
+            <span id="hate-label" className="text-[13px] leading-snug">
+              Het ging om wie ik ben
+              <span className="block text-[11px] text-muted">Alleen moderatie en politie zien dit.</span>
+            </span>
+            <button type="button" role="switch" aria-checked={!!hate} aria-labelledby="hate-label" className="switch" onClick={() => onHate(!hate)} />
+          </div>
+        )}
 
         {noteOpen ? (
           <div className="flex flex-col gap-1.5">

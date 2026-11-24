@@ -21,11 +21,14 @@ export interface NewReport {
   lon: number;
   /** Seen by moderation only. Never public in the MVP. */
   note?: string;
+  /** Incident only: the reporter thinks it was about who they are. Moderation and police only. */
+  hate?: boolean;
 }
 
 export type SubmitResult =
   | { ok: true; status: "approved"; report: PublicReport }
   | { ok: true; status: "pending" }
+  | { ok: true; status: "private" }
   | { ok: false; error: ReportError };
 
 export type ReportError = "rate_limited" | "outside_area" | "invalid" | "offline" | "unknown";

@@ -21,6 +21,7 @@ const BY_CATEGORY: Record<string, NextStep[]> = {
   "onveilig-gevoel": [],
   "donkere-plek": [{ label: "Ook melden bij de gemeente", href: "https://meldingen.amsterdam.nl", detail: "Kapotte lamp of donkere plek in de openbare ruimte" }],
   "rook-of-alarm": [],
+  uitbuiting: [{ label: "Meld Misdaad Anoniem", href: "https://www.meldmisdaadanoniem.nl", detail: "Ook voor tips over mensenhandel: 0800 7000" }],
   nageroepen: [DISCRIMINATION, SEXUAL],
   gevolgd: [POLICE_REPORT, VICTIM],
   bedreigd: [POLICE_REPORT, VICTIM, DISCRIMINATION],

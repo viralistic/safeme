@@ -153,6 +153,11 @@ export function createDemoStore(getCenter: () => LatLon): ReportStore {
         flags: 0,
       };
       // Notes are for moderation only and are not kept in demo mode.
+      // Private signals never reach the public map.
+      if (cat.private) {
+        write(OWN, [...own, { id: report.id, at: now, ...point }]);
+        return { ok: true, status: "private" };
+      }
       write(KEY, [...reports, report]);
       write(OWN, [...own, { id: report.id, at: now, ...point }]);
       emit();

@@ -5,7 +5,7 @@ import { ASSETS } from "@/lib/assets";
 import { nextSteps } from "@/lib/nextSteps";
 
 interface Props {
-  status: "approved" | "pending";
+  status: "approved" | "pending" | "private";
   category: string;
   onDone: () => void;
 }
@@ -27,6 +27,8 @@ export default function Verzonden({ status, category, onDone }: Props) {
         <h1 id="sent-title" ref={title} tabIndex={-1} className="display text-[28px] text-white outline-none">
           {status === "approved" ? (
             <>Gedaan. De buurt<br />ziet jouw melding</>
+          ) : status === "private" ? (
+            <>Gedaan. Alleen de<br />politie ziet dit</>
           ) : (
             <>Gedaan. We kijken<br />even mee</>
           )}
@@ -34,7 +36,9 @@ export default function Verzonden({ status, category, onDone }: Props) {
         <p className="max-w-[240px] text-[13px] leading-normal text-[#cfd3dd]">
           {status === "approved"
             ? `Hij staat nu live en vervaagt vanzelf over ${hours === 1 ? "een uur" : `${hours} uur`}. Bij nood bel 112.`
-            : "Je melding wordt kort gecontroleerd en verschijnt daarna op de kaart. Bij nood bel 112."}
+            : status === "private"
+              ? "Je melding staat niet op de openbare kaart. Meldt nog iemand deze plek, dan ziet de politie het. Bij nood bel 112."
+              : "Je melding wordt kort gecontroleerd en verschijnt daarna op de kaart. Bij nood bel 112."}
         </p>
         {steps.length > 0 && (
           <div className="mt-2 flex w-full max-w-[320px] flex-col gap-2 text-left">

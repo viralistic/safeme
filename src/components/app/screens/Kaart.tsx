@@ -12,7 +12,7 @@ interface Props {
   onCall: () => void;
   onReport: () => void;
   onLocate: () => void;
-  onPlace: (p: LatLon) => void;
+  onPlace: (p: LatLon, name: string) => void;
 }
 
 export default function KaartOverlay({ count, tonight, summary, onTonight, onCall, onReport, onLocate, onPlace }: Props) {
@@ -38,7 +38,7 @@ export default function KaartOverlay({ count, tonight, summary, onTonight, onCal
     const pt = await lookupPlace(p.id);
     setSearching(false);
     setQ("");
-    if (pt) onPlace(pt);
+    if (pt) onPlace(pt, p.name);
   }
 
   return (
@@ -94,6 +94,7 @@ export default function KaartOverlay({ count, tonight, summary, onTonight, onCal
           <span className="flex items-center gap-1.5"><i className="block h-2.5 w-2.5 rounded-full bg-oxblood" />Midden</span>
           <span className="flex items-center gap-1.5"><i className="block h-3 w-3 rounded-full bg-red" />Hoog</span>
           <span className="flex items-center gap-1.5"><i className="block h-2.5 w-2.5 rounded-full border-2 border-cyan" />Hulp</span>
+          <span className="flex items-center gap-1.5"><i className="block h-3 w-3 rounded-full border border-dashed border-cyan" />Buurtteam</span>
         </div>
         <div className="pointer-events-auto flex flex-wrap items-center gap-2">
           <button

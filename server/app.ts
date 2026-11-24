@@ -12,6 +12,8 @@ import * as webpush from "web-push";
 import { getCategory } from "../src/lib/categories.ts";
 import { distanceM, fuzz, inNetherlands } from "../src/lib/fuzz.ts";
 import { moderateNote, type AiConfig } from "./moderation.ts";
+import { HttpError } from "./http.ts";
+import { createPartnerRoutes, ensureModerator, migratePartners } from "./partners.ts";
 
 export interface Config {
   dbPath: string;
@@ -31,6 +33,12 @@ export interface Config {
   vapid?: { publicKey: string; privateKey: string; subject: string };
   /** Trust X-Forwarded-For (only behind your own reverse proxy). */
   trustProxy?: boolean;
+  /** First moderator account, created once at start. */
+  moderator?: { email: string; password: string };
+  /** Email domain for police sign-ups. */
+  policeDomain?: string;
+  /** City time zone, default Europe/Amsterdam. */
+  timeZone?: string;
   now?: () => number;
 }
 
@@ -56,15 +64,7 @@ interface ReportRow {
   moderation?: string | null;
 }
 
-class HttpError extends Error {
-  status: number;
-  code: string;
-  constructor(status: number, code: string) {
-    super(code);
-    this.status = status;
-    this.code = code;
-  }
-}
+
 
 function addColumn(db: DatabaseSync, table: string, column: string, type: string) {
   const cols = db.prepare(`pragma table_info(${table})`).all() as { name: string }[];
@@ -145,12 +145,17 @@ export function createApp(cfg: Config) {
   const db = new DatabaseSync(cfg.dbPath);
   migrate(db);
   addColumn(db, "reports", "moderation", "text");
+  addColumn(db, "reports", "private", "integer not null default 0");
+  addColumn(db, "reports", "hate", "integer not null default 0");
+  migratePartners(db);
+  if (cfg.moderator) ensureModerator(db, cfg.moderator.email, cfg.moderator.password, now());
 
   if (cfg.vapid) webpush.setVapidDetails(cfg.vapid.subject, cfg.vapid.publicKey, cfg.vapid.privateKey);
 
   // IPs are only used as salted hashes for rate limiting. The salt rotates on restart.
   const ipSalt = randomBytes(16).toString("hex");
-  const sessionLimit = limiter(10, HOUR, now);
+  // Generous: many people can share one IP on public Wi-Fi. Tokens are kept on the device.
+  const sessionLimit = limiter(60, HOUR, now);
   const ipReportLimit = limiter(20, HOUR, now);
   const writeLimit = limiter(120, HOUR, now);
 
@@ -218,11 +223,11 @@ export function createApp(cfg: Config) {
   }
 
   function livePins() {
-    return (db.prepare(`${PIN_SQL} where r.status = 'approved' and r.expires_at > ? order by r.created_at desc limit 2000`).all(now()) as Record<string, unknown>[]).map(toPin);
+    return (db.prepare(`${PIN_SQL} where r.status = 'approved' and r.private = 0 and r.expires_at > ? order by r.created_at desc limit 2000`).all(now()) as Record<string, unknown>[]).map(toPin);
   }
 
   function pin(id: string) {
-    const r = db.prepare(`${PIN_SQL} where r.id = ? and r.status = 'approved' and r.expires_at > ?`).get(id, now()) as Record<string, unknown> | undefined;
+    const r = db.prepare(`${PIN_SQL} where r.id = ? and r.status = 'approved' and r.private = 0 and r.expires_at > ?`).get(id, now()) as Record<string, unknown> | undefined;
     return r ? toPin(r) : null;
   }
 
@@ -288,6 +293,26 @@ export function createApp(cfg: Config) {
     db.prepare("update reports set note = null where expires_at <= ? and note is not null").run(t);
     db.prepare("delete from reports where created_at < ?").run(t - 30 * 24 * HOUR);
   }
+
+  function setReportStatus(id: string, status: Status, confidence?: number) {
+    const before = db.prepare("select * from reports where id = ?").get(id) as (ReportRow & { private: number }) | undefined;
+    if (!before) throw new HttpError(404, "not_found");
+    const conf = confidence === undefined || !Number.isFinite(confidence) ? before.confidence : Math.max(0, Math.min(1, confidence));
+    db.prepare("update reports set status = ?, confidence = ? where id = ?").run(status, conf, id);
+    emit();
+    if (status === "approved" && before.status === "pending" && !before.private) void sendPushes({ ...before, status });
+  }
+
+  const partner = createPartnerRoutes({
+    db,
+    now,
+    body,
+    emit,
+    setReportStatus,
+    alert: (t) => void alertModerators(t),
+    policeDomain: cfg.policeDomain ?? "politie.nl",
+    timeZone: cfg.timeZone ?? "Europe/Amsterdam",
+  });
 
   // ---------------------------------------------------------------- routes
 
@@ -358,11 +383,13 @@ export function createApp(cfg: Config) {
         moderation: check && check.verdict !== "ok" ? JSON.stringify(check) : null,
       };
       db.prepare(
-        "insert into reports (id, type, category, severity, lat, lon, created_at, expires_at, note, reporter_id, status, confidence, moderation) values (?,?,?,?,?,?,?,?,?,?,?,?,?)",
-      ).run(row.id, row.type, row.category, row.severity, row.lat, row.lon, row.created_at, row.expires_at, row.note, row.reporter_id, row.status, row.confidence, row.moderation ?? null);
+        "insert into reports (id, type, category, severity, lat, lon, created_at, expires_at, note, reporter_id, status, confidence, moderation, private, hate) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+      ).run(row.id, row.type, row.category, row.severity, row.lat, row.lon, row.created_at, row.expires_at, row.note, row.reporter_id, row.status, row.confidence, row.moderation ?? null, cat.private ? 1 : 0, cat.type === "incident" && b.hate === true ? 1 : 0);
 
       void notifyWebhook(row);
       if (row.status === "pending") void alertModerators(`Nieuwe melding wacht op controle: ${cat.label}${check?.reasons.length ? ` (${check.reasons.join(", ")})` : ""}`);
+      // Private signals never reach the public map or pushes; police see them once a second person reports.
+      if (cat.private && row.status === "approved") return { status: "private" };
       if (row.status === "approved") {
         emit();
         void sendPushes(row);
@@ -441,12 +468,14 @@ export function createApp(cfg: Config) {
         if (!["pending", "approved", "removed"].includes(status)) throw new HttpError(422, "invalid");
         const before = db.prepare("select * from reports where id = ?").get(seg[3]) as ReportRow | undefined;
         if (!before) throw new HttpError(404, "not_found");
-        const conf = b.confidence === undefined ? before.confidence : Math.max(0, Math.min(1, Number(b.confidence)));
-        db.prepare("update reports set status = ?, confidence = ? where id = ?").run(status, conf, seg[3]);
-        emit();
-        if (status === "approved" && before.status === "pending") void sendPushes({ ...before, status });
+        setReportStatus(seg[3], status, b.confidence === undefined ? undefined : Number(b.confidence));
         return { ok: true };
       }
+    }
+
+    if (path.startsWith("/api/partner/") || path === "/api/walks") {
+      const out = await partner(req, path, method, seg);
+      if (out !== undefined) return out;
     }
 
     throw new HttpError(404, "not_found");

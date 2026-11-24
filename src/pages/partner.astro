@@ -1,0 +1,8 @@
+---
+import Base from "@/layouts/Base.astro";
+import Partner from "@/components/partner/Partner";
+import "@/styles/app.css";
+---
+<Base title="Safety Map voor partners" description="Voor politie, buurtteams en moderatoren: zie waar mensen zich onveilig voelen.">
+  <Partner client:only="react" />
+</Base>

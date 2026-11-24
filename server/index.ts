@@ -21,6 +21,8 @@ const app = createApp({
   webhookUrl: env.N8N_WEBHOOK_URL || undefined,
   webhookSecret: env.N8N_WEBHOOK_SECRET || undefined,
   vapid,
+  moderator: env.MODERATOR_EMAIL && env.MODERATOR_PASSWORD ? { email: env.MODERATOR_EMAIL, password: env.MODERATOR_PASSWORD } : undefined,
+  policeDomain: env.POLICE_EMAIL_DOMAIN || "politie.nl",
   ai: env.MODERATION_AI_URL && env.MODERATION_AI_MODEL ? { url: env.MODERATION_AI_URL, model: env.MODERATION_AI_MODEL, key: env.MODERATION_AI_KEY || undefined } : undefined,
   telegram: env.TELEGRAM_BOT_TOKEN && env.TELEGRAM_CHAT_ID ? { token: env.TELEGRAM_BOT_TOKEN, chatId: env.TELEGRAM_CHAT_ID } : undefined,
   trustProxy: env.TRUST_PROXY === "true",

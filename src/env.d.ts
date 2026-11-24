@@ -6,6 +6,8 @@ interface ImportMetaEnv {
   /** A MapLibre style URL, or "self" for tiles served from the server's TILES_DIR. */
   readonly PUBLIC_MAP_STYLE?: string;
   readonly PUBLIC_TILES_FILE?: string;
+  /** OSRM-compatible routing base URL for walking routes. */
+  readonly PUBLIC_ROUTING_URL?: string;
   readonly PUBLIC_PLAUSIBLE_DOMAIN?: string;
   /** Set by the single-file demo build (artifact/). */
   readonly PUBLIC_SINGLE_FILE?: string;

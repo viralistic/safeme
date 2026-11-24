@@ -65,7 +65,25 @@ async function loadStyle(): Promise<StyleSpecification> {
   }
 }
 
+/** Other things on the map: buurtteam walks, private signals for police. */
+export interface MapExtra {
+  id: string;
+  lat: number;
+  lon: number;
+  kind: "walk" | "signal";
+  label: string;
+}
+
+/** A route: the chosen line, and the alternatives it beat. Coordinates as [lon, lat]. */
+export interface MapRoute {
+  best: [number, number][];
+  others: [number, number][][];
+}
+
 interface Props {
+  extras?: MapExtra[];
+  route?: MapRoute | null;
+  onExtra?: (e: MapExtra) => void;
   reports: PublicReport[];
   center: LatLon;
   /** Changes to this value fly the map to `center`. */
@@ -103,15 +121,16 @@ function greyDown(map: MlMap) {
   }
 }
 
-export default function MapView({ reports, center, flyKey, me, onSelect, onMove }: Props) {
+export default function MapView({ reports, center, flyKey, me, onSelect, onMove, extras = [], route = null, onExtra }: Props) {
   const el = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MlMap | null>(null);
   const markers = useRef<Marker[]>([]);
   const meMarker = useRef<Marker | null>(null);
+  const extraMarkers = useRef<Marker[]>([]);
   const ml = useRef<typeof import("maplibre-gl") | null>(null);
   const [ready, setReady] = useState(false);
-  const latest = useRef({ reports, onSelect, onMove });
-  latest.current = { reports, onSelect, onMove };
+  const latest = useRef({ reports, onSelect, onMove, onExtra });
+  latest.current = { reports, onSelect, onMove, onExtra };
 
   useEffect(() => {
     let cancelled = false;
@@ -239,6 +258,66 @@ export default function MapView({ reports, center, flyKey, me, onSelect, onMove 
       meMarker.current = new mod.Marker({ element: dot }).setLngLat([me.lon, me.lat]).addTo(map);
     } else meMarker.current.setLngLat([me.lon, me.lat]);
   }, [me, ready]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    const mod = ml.current;
+    if (!map || !mod || !ready) return;
+    extraMarkers.current.forEach((m) => m.remove());
+    extraMarkers.current = extras.map((e) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = `extra ${e.kind}`;
+      btn.setAttribute("aria-label", e.label);
+      btn.innerHTML = '<span class="ring"></span>';
+      btn.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        latest.current.onExtra?.(e);
+      });
+      return new mod.Marker({ element: btn }).setLngLat([e.lon, e.lat]).addTo(map);
+    });
+  }, [extras, ready]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready) return;
+    const data = {
+      type: "FeatureCollection" as const,
+      features: route
+        ? [
+            ...route.others.map((c) => ({ type: "Feature" as const, properties: { best: 0 }, geometry: { type: "LineString" as const, coordinates: c } })),
+            { type: "Feature" as const, properties: { best: 1 }, geometry: { type: "LineString" as const, coordinates: route.best } },
+          ]
+        : [],
+    };
+    const src = map.getSource("route") as import("maplibre-gl").GeoJSONSource | undefined;
+    if (src) src.setData(data);
+    else {
+      map.addSource("route", { type: "geojson", data });
+      map.addLayer({
+        id: "route",
+        type: "line",
+        source: "route",
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: {
+          "line-color": ["case", ["==", ["get", "best"], 1], "#38d2ff", "#8c9cb1"],
+          "line-width": ["case", ["==", ["get", "best"], 1], 5, 3],
+          "line-opacity": ["case", ["==", ["get", "best"], 1], 0.95, 0.35],
+        },
+      });
+    }
+    if (route?.best.length) {
+      const lons = route.best.map((c) => c[0]);
+      const lats = route.best.map((c) => c[1]);
+      map.fitBounds(
+        [
+          [Math.min(...lons), Math.min(...lats)],
+          [Math.max(...lons), Math.max(...lats)],
+        ],
+        { padding: 80, duration: 800 },
+      );
+    }
+  }, [route, ready]);
 
   return (
     <div className="map-wrap">

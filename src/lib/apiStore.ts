@@ -85,7 +85,8 @@ export function createApiStore(base: string): ReportStore {
 
     async submit(r: NewReport): Promise<SubmitResult> {
       try {
-        const out = await api.call<{ status: "approved" | "pending"; report?: PublicReport }>("POST", "/reports", r);
+        const out = await api.call<{ status: "approved" | "pending" | "private"; report?: PublicReport }>("POST", "/reports", r);
+        if (out.status === "private") return { ok: true, status: "private" };
         if (out.status === "approved" && out.report) {
           addTo(OWN, out.report.id);
           return { ok: true, status: "approved", report: out.report };
