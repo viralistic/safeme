@@ -20,7 +20,8 @@ inflaming.
    help is a welfare signal, not a threat.
 3. Not an emergency tool. Every relevant screen shows: for emergencies call 112.
 4. Copy: no em dashes, no emoji. Calm, concrete, StoryBrand (user is the hero,
-   the app is the guide). Dutch UI.
+   the app is the guide). Dutch UI, English via `src/lib/i18n.en.ts` (wrap new
+   copy in `t()`). The partner portal stays Dutch.
 5. Minimal text, lots of whitespace.
 
 ## Visual system
@@ -64,7 +65,9 @@ inflaming.
 ## Report categories
 
 - Situatie (observed): Drugsgebruik, Overlast, Inbraakpoging, Iemand in nood,
-  Onveilig gevoel.
+  Onveilig gevoel, Donkere plek, Rook of alarm, Explosie of knal, and the
+  private Uitbuiting signal (never on the public map, police only after two
+  independent reports of the same place).
 - Overkomt mij (incident): follows the same two-tap pattern.
 - Severity is a continuous spectrum (not buckets), stored 0 to 100 or mapped to
   low / mid / high.

@@ -3,9 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import { listScenarios, playCaller, startRingtone, unlockAudio, type Scenario } from "@/lib/fakecall";
 import Icon from "./Icon";
+import { t } from "@/lib/i18n";
 
 const DELAYS = [
-  { s: 0, label: "Nu" },
+  { s: 0, label: t("Nu") },
   { s: 10, label: "10 sec" },
   { s: 30, label: "30 sec" },
   { s: 60, label: "1 min" },
@@ -34,15 +35,15 @@ export function CallSheet({ onStart, onClose, onSetup }: { onStart: (s: Scenario
       >
         <div className="flex items-start justify-between">
           <div>
-            <h2 id="call-title" className="display text-[24px]">Bel me op speaker</h2>
-            <p className="mt-1 text-[13px] text-muted">Een nepgesprek, zodat je een uitweg hebt.</p>
+            <h2 id="call-title" className="display text-[24px]">{t("Bel me op speaker")}</h2>
+            <p className="mt-1 text-[13px] text-muted">{t("Een nepgesprek, zodat je een uitweg hebt.")}</p>
           </div>
-          <button type="button" className="chip" onClick={onClose} aria-label="Sluiten">
+          <button type="button" className="chip" onClick={onClose} aria-label={t("Sluiten")}>
             <Icon name="close" size={18} />
           </button>
         </div>
 
-        <div className="mt-5 flex flex-col gap-2" role="radiogroup" aria-label="Wie belt er">
+        <div className="mt-5 flex flex-col gap-2" role="radiogroup" aria-label={t("Wie belt er")}>
           {list.map((s) => (
             <button
               key={s.id}
@@ -55,14 +56,14 @@ export function CallSheet({ onStart, onClose, onSetup }: { onStart: (s: Scenario
               <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-surface2 text-[14px] font-semibold">{s.name.slice(0, 1)}</span>
               <span className="min-w-0 flex-1">
                 <span className="block text-[14px] font-medium">{s.name}</span>
-                <span className="block truncate text-[12px] text-muted">Zeg: "{s.phrase}"</span>
+                <span className="block truncate text-[12px] text-muted">{t("Zeg")}: "{s.phrase}"</span>
               </span>
-              <span className="text-[11px] text-muted">{s.audio ? "eigen opname" : "voorgelezen"}</span>
+              <span className="text-[11px] text-muted">{s.audio ? t("eigen opname") : t("voorgelezen")}</span>
             </button>
           ))}
         </div>
 
-        <p id="delay-label" className="mt-5 text-[13px] font-medium">Wanneer</p>
+        <p id="delay-label" className="mt-5 text-[13px] font-medium">{t("Wanneer")}</p>
         <div className="mt-2 grid grid-cols-4 gap-2" role="radiogroup" aria-labelledby="delay-label">
           {DELAYS.map((d) => (
             <button
@@ -87,10 +88,10 @@ export function CallSheet({ onStart, onClose, onSetup }: { onStart: (s: Scenario
             if (chosen) onStart(chosen, delay);
           }}
         >
-          <span>{delay === 0 ? "Bel me nu" : `Bel me over ${DELAYS.find((d) => d.s === delay)?.label}`}</span>
+          <span>{delay === 0 ? t("Bel me nu") : t("Bel me over {delay}", { delay: DELAYS.find((d) => d.s === delay)?.label ?? "" })}</span>
         </button>
         <button type="button" className="btn-ghost mt-1" onClick={onSetup}>
-          Gesprekken instellen
+          {t("Gesprekken instellen")}
         </button>
       </section>
     </div>
@@ -141,11 +142,11 @@ export function CallScreen({ scenario, onEnd }: { scenario: Scenario; onEnd: () 
     <div className="absolute inset-0 z-50 flex flex-col items-center bg-[linear-gradient(180deg,#1c1f26,#0d0f14)] px-8 pt-[calc(env(safe-area-inset-top)+72px)] pb-[calc(env(safe-area-inset-bottom)+56px)] text-white" role="dialog" aria-label={`Inkomend gesprek van ${scenario.name}`}>
       <div className="grid h-24 w-24 place-items-center rounded-full bg-[#3a3f4b] text-[40px] font-light">{scenario.name.slice(0, 1)}</div>
       <p className="mt-6 text-[34px] font-light tracking-tight">{scenario.name}</p>
-      <p className="mt-1 text-[16px] text-white/60">{state === "ringing" ? "mobiel" : clock(sec)}</p>
+      <p className="mt-1 text-[16px] text-white/60">{state === "ringing" ? t("mobiel") : clock(sec)}</p>
 
       {state === "active" && (
         <div className="mt-auto mb-12 grid grid-cols-3 gap-x-8 gap-y-6 text-center text-[12px] text-white/80">
-          {["dempen", "toetsen", "speaker", "gesprek +", "FaceTime", "contacten"].map((l) => (
+          {[t("dempen"), t("toetsen"), "speaker", t("gesprek +"), "FaceTime", t("contacten")].map((l) => (
             <div key={l} className="flex flex-col items-center gap-2">
               <span className={`h-16 w-16 rounded-full ${l === "speaker" ? "bg-white" : "bg-white/15"}`} aria-hidden="true" />
               {l}
@@ -157,11 +158,11 @@ export function CallScreen({ scenario, onEnd }: { scenario: Scenario; onEnd: () 
       <div className={`${state === "ringing" ? "mt-auto" : ""} flex w-full justify-around`}>
         {state === "ringing" ? (
           <>
-            <CallButton color="#ff3b30" label="Weiger" onClick={hangUp} rotate />
-            <CallButton color="#34c759" label="Accepteer" onClick={answer} />
+            <CallButton color="#ff3b30" label={t("Weiger")} onClick={hangUp} rotate />
+            <CallButton color="#34c759" label={t("Accepteer")} onClick={answer} />
           </>
         ) : (
-          <CallButton color="#ff3b30" label="Beëindig" onClick={hangUp} rotate />
+          <CallButton color="#ff3b30" label={t("Beëindig")} onClick={hangUp} rotate />
         )}
       </div>
     </div>

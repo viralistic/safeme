@@ -1,3 +1,5 @@
+import { t } from "./i18n";
+
 // Severity is a continuous 0 to 100 spectrum. Buckets are only for labels and pins.
 
 export type Level = "low" | "mid" | "high";
@@ -9,15 +11,15 @@ export function level(severity: number): Level {
 }
 
 const DANGER_LABEL: Record<Level, string> = {
-  low: "Onprettig",
-  mid: "Verdacht",
-  high: "Direct gevaar",
+  low: t("Onprettig"),
+  mid: t("Verdacht"),
+  high: t("Direct gevaar"),
 };
 
 const WELFARE_LABEL: Record<Level, string> = {
-  low: "Kan even wachten",
-  mid: "Hulp nodig",
-  high: "Direct hulp nodig",
+  low: t("Kan even wachten"),
+  mid: t("Hulp nodig"),
+  high: t("Direct hulp nodig"),
 };
 
 export function severityLabel(severity: number, welfare = false): string {

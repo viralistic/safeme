@@ -4,6 +4,7 @@ import { level, LEVEL_COLOR, severityLabel } from "@/lib/severity";
 import type { LocationSource } from "@/lib/geo";
 import Icon from "../Icon";
 import { Header } from "../ui";
+import { t } from "@/lib/i18n";
 
 interface Props {
   category: string;
@@ -36,9 +37,9 @@ export default function MeldenErnst({ category, severity, note, locationSource, 
         title={
           <span id="ernst-title">
             {welfare ? (
-              <>Hoe dringend<br />lijkt het?</>
+              <>{t("Hoe dringend")}<br />{t("lijkt het?")}</>
             ) : (
-              <>Hoe onveilig<br />voelt het?</>
+              <>{t("Hoe onveilig")}<br />{t("voelt het?")}</>
             )}
           </span>
         }
@@ -57,23 +58,23 @@ export default function MeldenErnst({ category, severity, note, locationSource, 
             max={100}
             value={severity}
             onChange={(e) => onSeverity(Number(e.target.value))}
-            aria-label={welfare ? "Hoe dringend" : "Hoe onveilig"}
+            aria-label={welfare ? t("Hoe dringend") : t("Hoe onveilig")}
             aria-valuetext={label}
           />
         </div>
         <div className="mt-3.5 flex justify-between text-[10px] font-semibold uppercase tracking-[.12em] text-muted">
-          <span>{welfare ? "Kan wachten" : "Onprettig"}</span>
-          <span>{welfare ? "Direct hulp" : "Direct gevaar"}</span>
+          <span>{welfare ? t("Kan wachten") : t("Onprettig")}</span>
+          <span>{welfare ? t("Direct hulp") : t("Direct gevaar")}</span>
         </div>
 
         {cat?.urgent ? (
           <p className="mt-6 rounded-xl border border-[rgba(255,170,160,.35)] bg-[rgba(237,58,44,.22)] px-4 py-3 text-[14px] leading-snug text-white" role="alert">
-            Zie je vuur of rook uit een gebouw? Bel eerst <b className="font-semibold">112</b>. Melden kan daarna, zodat de buren het weten.
+            {t("Is er gevaar of zie je vuur of rook? Bel eerst")} <b className="font-semibold">112</b>. {t("Melden kan daarna, zodat de buren het weten.")}
           </p>
         ) : (
           lv === "high" && (
             <p className="mt-6 rounded-xl border border-[rgba(255,170,160,.35)] bg-[rgba(237,58,44,.14)] px-4 py-3 text-[13px] leading-snug text-white" role="note">
-              Is er nu gevaar? Bel eerst <b className="font-semibold">112</b>. Melden kan daarna.
+              {t("Is er nu gevaar? Bel eerst")} <b className="font-semibold">112</b>. {t("Melden kan daarna.")}
             </p>
           )
         )}
@@ -81,22 +82,22 @@ export default function MeldenErnst({ category, severity, note, locationSource, 
         <div className="mt-8 flex items-center gap-3 border-t border-border py-4">
           <Icon name="pin" size={18} className="shrink-0 text-muted" />
           <div className="flex-1 text-[13px] font-medium">
-            {locationSource === "device" ? "Jouw locatie" : "Midden van de kaart"}
-            <span className="text-[11px] font-light text-muted"> · vervaagd tot ±100m</span>
+            {locationSource === "device" ? t("Jouw locatie") : t("Midden van de kaart")}
+            <span className="text-[11px] font-light text-muted">{" "}{t("· vervaagd tot ±100m")}</span>
           </div>
         </div>
 
         {cat?.private && (
           <p className="mb-4 rounded-xl border border-border bg-surface px-4 py-3 text-[13px] leading-snug text-[#cfd3dd]" role="note">
-            Deze melding komt niet op de openbare kaart. Alleen de politie ziet hem, en pas als nog iemand dezelfde plek meldt. Beschrijf wat je hoorde of zag, niet hoe iemand eruitziet.
+            {t("Deze melding komt niet op de openbare kaart. Alleen de politie ziet hem, en pas als nog iemand dezelfde plek meldt. Beschrijf wat je hoorde of zag, niet hoe iemand eruitziet.")}
           </p>
         )}
 
         {onHate && (
           <div className="mb-4 flex items-center justify-between gap-4 border-b border-border pb-4">
             <span id="hate-label" className="text-[13px] leading-snug">
-              Het ging om wie ik ben
-              <span className="block text-[11px] text-muted">Alleen moderatie en politie zien dit.</span>
+              {t("Het ging om wie ik ben")}
+              <span className="block text-[11px] text-muted">{t("Alleen moderatie en politie zien dit.")}</span>
             </span>
             <button type="button" role="switch" aria-checked={!!hate} aria-labelledby="hate-label" className="switch" onClick={() => onHate(!hate)} />
           </div>
@@ -105,7 +106,7 @@ export default function MeldenErnst({ category, severity, note, locationSource, 
         {noteOpen ? (
           <div className="flex flex-col gap-1.5">
             <label htmlFor="note" className="text-[12px] text-muted">
-              Notitie, alleen zichtbaar voor de moderatie. Beschrijf wat er gebeurt, niet hoe iemand eruitziet.
+              {t("Notitie, alleen zichtbaar voor de moderatie. Beschrijf wat er gebeurt, niet hoe iemand eruitziet.")}
             </label>
             <textarea
               id="note"
@@ -114,13 +115,13 @@ export default function MeldenErnst({ category, severity, note, locationSource, 
               rows={3}
               onChange={(e) => onNote(e.target.value)}
               className="resize-none rounded-xl border border-border bg-surface px-3 py-2.5 text-[14px] text-fg placeholder:text-muted focus:border-cyan focus:outline-none"
-              placeholder="Bijvoorbeeld: iemand probeert fietsen open te breken"
+              placeholder={t("Bijvoorbeeld: iemand probeert fietsen open te breken")}
             />
             <span className="self-end text-[10px] text-muted">{note.length}/280</span>
           </div>
         ) : (
           <button type="button" className="btn-ghost justify-start! p-0" onClick={() => setNoteOpen(true)}>
-            + Notitie voor de moderatie
+            {t("+ Notitie voor de moderatie")}
           </button>
         )}
       </div>
@@ -131,7 +132,7 @@ export default function MeldenErnst({ category, severity, note, locationSource, 
           </p>
         )}
         <button type="button" className="btn glass glass-red" onClick={onSubmit} disabled={busy}>
-          <span>{busy ? "Bezig met plaatsen..." : "Melding plaatsen"}</span>
+          <span>{busy ? t("Bezig met plaatsen...") : t("Melding plaatsen")}</span>
         </button>
       </div>
     </section>

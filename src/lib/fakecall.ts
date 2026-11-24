@@ -1,6 +1,8 @@
 // "Bel me op speaker": fake incoming calls set up beforehand.
 // Scenarios and recordings live only on this device (IndexedDB), never uploaded.
 
+import { t, lang } from "./i18n";
+
 export interface Scenario {
   id: string;
   /** Name shown on the call screen, for example "Pap". */
@@ -14,9 +16,9 @@ export interface Scenario {
 }
 
 export const DEFAULT_SCENARIOS: Scenario[] = [
-  { id: "default-pap", name: "Pap", phrase: "Hey pap", text: "Ik sta om de hoek met de auto, ik zie je niet. Waar ben je precies?", createdAt: 1 },
-  { id: "default-mam", name: "Mam", phrase: "Hey mam", text: "Oh leuk, ik zie je al vanaf buiten!", createdAt: 2 },
-  { id: "default-sanne", name: "Sanne", phrase: "Hoi Sanne", text: "Ik ben er over twee minuten, blijf maar staan.", createdAt: 3 },
+  { id: "default-pap", name: t("Pap"), phrase: t("Hey pap"), text: t("Ik sta om de hoek met de auto, ik zie je niet. Waar ben je precies?"), createdAt: 1 },
+  { id: "default-mam", name: t("Mam"), phrase: t("Hey mam"), text: t("Oh leuk, ik zie je al vanaf buiten!"), createdAt: 2 },
+  { id: "default-sanne", name: t("Sanne"), phrase: t("Hoi Sanne"), text: t("Ik ben er over twee minuten, blijf maar staan."), createdAt: 3 },
 ];
 
 const DB = "sm-fakecall";
@@ -173,9 +175,9 @@ export function playCaller(s: Scenario): () => void {
   try {
     const synth = window.speechSynthesis;
     const u = new SpeechSynthesisUtterance(s.text);
-    u.lang = "nl-NL";
+    u.lang = lang === "en" ? "en-GB" : "nl-NL";
     // Prefer a voice that runs on the phone itself.
-    const voice = synth.getVoices().find((v) => v.lang.startsWith("nl") && v.localService) ?? synth.getVoices().find((v) => v.lang.startsWith("nl"));
+    const voice = synth.getVoices().find((v) => v.lang.startsWith(lang) && v.localService) ?? synth.getVoices().find((v) => v.lang.startsWith(lang));
     if (voice) u.voice = voice;
     u.rate = 1.02;
     synth.speak(u);

@@ -1,3 +1,4 @@
+import { t } from "./i18n";
 import type { ReportType } from "./categories";
 
 /** What anyone may see. Never carries reporter, note or signalement. */
@@ -49,9 +50,9 @@ export interface ReportStore {
 }
 
 export const ERROR_COPY: Record<ReportError, string> = {
-  rate_limited: "Je hebt hier net al gemeld. Probeer het over een half uur opnieuw.",
-  outside_area: "Safety Map werkt alleen in Nederland.",
-  invalid: "Er ging iets mis met je melding. Kies opnieuw een categorie.",
-  offline: "Geen verbinding. Probeer het zo opnieuw.",
-  unknown: "Er ging iets mis. Probeer het zo opnieuw.",
+  rate_limited: t("Je hebt hier net al gemeld. Probeer het over een half uur opnieuw."),
+  outside_area: t("Safety Map werkt alleen in Nederland."),
+  invalid: t("Er ging iets mis met je melding. Kies opnieuw een categorie."),
+  offline: t("Geen verbinding. Probeer het zo opnieuw."),
+  unknown: t("Er ging iets mis. Probeer het zo opnieuw."),
 };

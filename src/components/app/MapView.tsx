@@ -7,6 +7,7 @@ import { level, severityLabel } from "@/lib/severity";
 import { ago } from "@/lib/time";
 import type { LatLon } from "@/lib/fuzz";
 import type { PublicReport } from "@/lib/types";
+import { t } from "@/lib/i18n";
 
 const STYLE = import.meta.env.PUBLIC_MAP_STYLE || "https://tiles.openfreemap.org/styles/dark";
 
@@ -217,7 +218,7 @@ export default function MapView({ reports, center, flyKey, me, onSelect, onMove,
         btn.type = "button";
         btn.setAttribute(
           "aria-label",
-          `${cat?.label ?? "Melding"}, ${severityLabel(r.severity, cat?.welfare).toLowerCase()}, ${ago(r.created_at)}`,
+          `${cat?.label ?? t("Melding")}, ${severityLabel(r.severity, cat?.welfare).toLowerCase()}, ${ago(r.created_at)}`,
         );
         btn.innerHTML = '<span class="h"></span>';
         btn.addEventListener("click", (e) => {

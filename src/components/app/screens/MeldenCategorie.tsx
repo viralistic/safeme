@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { categoriesFor, TYPE_LABEL, type ReportType } from "@/lib/categories";
 import { Header } from "../ui";
+import { t } from "@/lib/i18n";
 
 interface Props {
   type: ReportType;
@@ -65,9 +66,9 @@ export default function MeldenCategorie({ type, category, onType, onNext, onClos
 
   return (
     <section className="screen" aria-labelledby="cat-title">
-      <Header title={<span id="cat-title">{type === "situation" ? "Wat zie je?" : "Wat overkomt je?"}</span>} onClose={onClose} />
+      <Header title={<span id="cat-title">{type === "situation" ? t("Wat zie je?") : t("Wat overkomt je?")}</span>} onClose={onClose} />
       <div className="px-[22px] pt-4">
-        <div className="mb-4 flex gap-7" role="tablist" aria-label="Soort melding">
+        <div className="mb-4 flex gap-7" role="tablist" aria-label={t("Soort melding")}>
           {(["situation", "incident"] as ReportType[]).map((t) => (
             <button
               key={t}
@@ -88,7 +89,7 @@ export default function MeldenCategorie({ type, category, onType, onNext, onClos
           className="wheel-list"
           role="listbox"
           tabIndex={0}
-          aria-label="Categorie"
+          aria-label={t("Categorie")}
           aria-activedescendant={`cat-${selected.id}`}
           onScroll={onScroll}
           onKeyDown={onKey}
@@ -113,10 +114,10 @@ export default function MeldenCategorie({ type, category, onType, onNext, onClos
       </div>
       <div className="px-[22px] pt-3 pb-5">
         {selected.welfare && (
-          <p className="mb-3 text-center text-[12px] leading-snug text-cyan">Dit is een hulpsignaal, geen waarschuwing. Twijfel je? Bel 112.</p>
+          <p className="mb-3 text-center text-[12px] leading-snug text-cyan">{t("Dit is een hulpsignaal, geen waarschuwing. Twijfel je? Bel 112.")}</p>
         )}
         <button type="button" className="btn glass glass-red" onClick={() => onNext(selected.id)}>
-          <span>Verder</span>
+          <span>{t("Verder")}</span>
         </button>
       </div>
     </section>

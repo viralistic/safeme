@@ -1,11 +1,12 @@
 import Globe from "@/components/shared/Globe";
 import { Note112 } from "../ui";
 import { ASSETS } from "@/lib/assets";
+import { t } from "@/lib/i18n";
 
 const HOTSPOTS = [
-  { lat: 18, lon: 25, label: "Inbraakpoging" },
-  { lat: -8, lon: -35, label: "Overlast" },
-  { lat: 42, lon: -8, label: "Drugsgebruik" },
+  { lat: 18, lon: 25, label: t("Inbraakpoging") },
+  { lat: -8, lon: -35, label: t("Overlast") },
+  { lat: 42, lon: -8, label: t("Drugsgebruik") },
 ];
 
 export default function Start({ onAllow, onSkip, busy }: { onAllow: () => void; onSkip: () => void; busy: boolean }) {
@@ -27,23 +28,23 @@ export default function Start({ onAllow, onSkip, busy }: { onAllow: () => void; 
       </div>
       <div className="pointer-events-none relative z-[3] mt-auto px-[26px] pb-7">
         <h1 id="start-title" className="display text-[34px] text-white">
-          Zie waar het
+          {t("Zie waar het")}
           <br />
-          onveilig is in
+          {t("onveilig is in")}
           <br />
-          jouw buurt
+          {t("jouw buurt")}
         </h1>
         <ol className="mt-5 flex flex-col gap-2 text-[14px] leading-snug text-[#cfd3dd]">
-          <li><span className="mr-2 text-cyan">1</span>Meld in twee tikken.</li>
-          <li><span className="mr-2 text-cyan">2</span>Zie wat anderen melden.</li>
-          <li><span className="mr-2 text-cyan">3</span>Kies een veilige route.</li>
+          <li><span className="mr-2 text-cyan">1</span>{t("Meld in twee tikken.")}</li>
+          <li><span className="mr-2 text-cyan">2</span>{t("Zie wat anderen melden.")}</li>
+          <li><span className="mr-2 text-cyan">3</span>{t("Kies een veilige route.")}</li>
         </ol>
         <div className="pointer-events-auto mt-6 flex flex-col gap-1">
           <button type="button" className="btn glass glass-red" onClick={onAllow} disabled={busy}>
-            <span>{busy ? "Even zoeken..." : "Locatie toestaan"}</span>
+            <span>{busy ? t("Even zoeken...") : t("Locatie toestaan")}</span>
           </button>
           <button type="button" className="btn-ghost" onClick={onSkip}>
-            Eerst rondkijken
+            {t("Eerst rondkijken")}
           </button>
           <Note112 className="mt-1" />
         </div>

@@ -58,6 +58,20 @@ docker build -t safety-map . && docker run -p 8787:8787 -v safety-map-data:/data
 
 Back up `DATA_DIR` every night, for example with `sqlite3 data/safety-map.db ".backup data/backup.db"` from cron.
 
+## What is in the app
+
+| Feature | Where |
+| --- | --- |
+| Live heat map with fuzzed pins, Vanavond view, calm summary | `/app` |
+| Two-tap reporting, including Donkere plek, Rook of alarm, Explosie of knal | `/app` |
+| Private signals (Uitbuiting): never public, police see them once two people report the same place | `/app`, `/partner` |
+| Bel me op speaker: fake calls with your own recorded voices, kept on the phone | `/app#/bellen` |
+| Walking routes that avoid recent danger reports | search a place on the map |
+| English for visitors (automatic for non-Dutch phones, switch under Jij) | `src/lib/i18n.en.ts` |
+| Partner portal for police (politie.nl, approved by a moderator), buurtteams and moderators (invite codes) | `/partner` |
+| Buurtteam avondwandeling shown on the public map | `/partner` |
+| Moderation queue, AI first pass, Telegram alerts | `/partner`, `server/moderation.ts` |
+
 ## Privacy rules, where they live
 
 | Rule | Code |
@@ -79,6 +93,12 @@ Back up `DATA_DIR` every night, for example with `sqlite3 data/safety-map.db ".b
 | GET | `/api/events` | Server-sent events, `change` on every update |
 | POST | `/api/reports` | `{ type, category, severity, lat, lon, note? }` |
 | POST | `/api/reports/:id/confirm` | "Dit herken ik ook" |
+| GET | `/api/walks` | Active buurtteam walks |
+| POST | `/api/partner/signup`, `/api/partner/login` | Partner accounts |
+| GET | `/api/partner/map` | Heat map over 7 to 90 days, reports per hour, private signals, walks |
+| POST / DELETE | `/api/partner/walks` | Start or stop an avondwandeling |
+| GET / POST | `/api/partner/queue`, `/api/partner/reports/:id` | Moderation |
+| GET / POST | `/api/partner/accounts`, `/api/partner/invites` | Approve partners, invite codes |
 | POST | `/api/reports/:id/flag` | `{ reason: onjuist \| persoon \| spam }` |
 | PUT / DELETE | `/api/push` | Web Push subscription with a fuzzed area |
 | GET / POST | `/api/admin/reports...` | Moderation, see `docs/n8n.md` |

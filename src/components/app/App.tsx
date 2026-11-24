@@ -24,6 +24,7 @@ import { clearLocal, loadPrefs, savePrefs, type AlertPrefs } from "@/lib/prefs";
 import { disablePush, enablePush } from "@/lib/push";
 import { ERROR_COPY, type PublicReport } from "@/lib/types";
 import type { ReportType } from "@/lib/categories";
+import { locale, t } from "@/lib/i18n";
 
 type Route =
   | { name: "start" }
@@ -117,11 +118,13 @@ export default function App() {
       const worst = Math.max(...routes.map((r) => r.passes));
       const text =
         best.passes === 0
-          ? `${min} min lopen, ${km} km. Langs geen recente meldingen.`
-          : `${min} min lopen, ${km} km. Langs ${best.passes} recente ${best.passes === 1 ? "melding" : "meldingen"}${worst > best.passes ? `, minder dan de andere routes` : ""}.`;
+          ? t("{min} min lopen, {km} km. Langs geen recente meldingen.", { min, km })
+          : t(best.passes === 1 ? "{min} min lopen, {km} km. Langs 1 recente melding" : "{min} min lopen, {km} km. Langs {n} recente meldingen", { min, km, n: best.passes }) +
+            (worst > best.passes ? t(", minder dan de andere routes") : "") +
+            ".";
       setWalkRoute({ best: best.coords, others: routes.filter((r) => r !== best).map((r) => r.coords), text });
     } catch {
-      setToast("Er is nu geen route te vinden. Probeer het zo opnieuw.");
+      setToast(t("Er is nu geen route te vinden. Probeer het zo opnieuw."));
     }
     setRouting(false);
   }
@@ -174,7 +177,7 @@ export default function App() {
               lat: w.lat,
               lon: w.lon,
               kind: "walk",
-              label: `${w.team} loopt hier vanavond, tot ${new Date(w.ends_at).toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" })}`,
+              label: t("{team} loopt hier vanavond, tot {time}", { team: w.team, time: new Date(w.ends_at).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" }) }),
             })),
           ),
         )
@@ -258,8 +261,9 @@ export default function App() {
   const nearHigh = near.filter((r) => r.severity >= 67 && !getCategory(r.category)?.welfare).length;
   const summary =
     near.length === 0
-      ? "Rustig binnen 1 km"
-      : `${near.length} ${near.length === 1 ? "melding" : "meldingen"} binnen 1 km${nearHigh ? `, ${nearHigh} direct gevaar` : ", geen direct gevaar"}`;
+      ? t("Rustig binnen 1 km")
+      : t(near.length === 1 ? "1 melding binnen 1 km" : "{n} meldingen binnen 1 km", { n: near.length }) +
+        (nearHigh ? t(", {n} direct gevaar", { n: nearHigh }) : t(", geen direct gevaar"));
 
   const tab: Tab | null = route.name === "kaart" ? "kaart" : route.name === "meldingen" ? "meldingen" : route.name === "jij" ? "jij" : null;
   const selected = route.name === "detail" ? reports.find((r) => r.id === route.id) ?? null : null;
@@ -317,16 +321,16 @@ export default function App() {
                     let name = prefs.areaName;
                     if (on && !area) {
                       area = fuzz(centerRef.current, 500);
-                      name = (await areaName(area)) ?? "Kaartgebied";
+                      name = (await areaName(area)) ?? t("Kaartgebied");
                     }
                     const next = { ...prefs, area, areaName: name, push: on };
                     if (on) {
                       const state = await enablePush(next);
                       if (state === "denied") {
-                        setPushStatus("Meldingen staan uit in je browser. Zet ze aan in de instellingen.");
+                        setPushStatus(t("Meldingen staan uit in je browser. Zet ze aan in de instellingen."));
                         next.push = false;
                       } else if (state === "unsupported") next.push = false;
-                      else if (state === "no-backend") setPushStatus("Opgeslagen op dit toestel. Pushmeldingen werken zodra de app live is.");
+                      else if (state === "no-backend") setPushStatus(t("Opgeslagen op dit toestel. Pushmeldingen werken zodra de app live is."));
                     } else await disablePush().catch(() => {});
                     updatePrefs(next);
                     setPushBusy(false);
@@ -335,9 +339,9 @@ export default function App() {
                   onRadius={(radiusM) => updatePrefs({ ...prefs, radiusM })}
                   onArea={async () => {
                     const area = fuzz(centerRef.current, 500);
-                    const name = (await areaName(area)) ?? "Kaartgebied";
+                    const name = (await areaName(area)) ?? t("Kaartgebied");
                     updatePrefs({ ...prefs, area, areaName: name });
-                    setPushStatus("Gebied ingesteld op het midden van de kaart.");
+                    setPushStatus(t("Gebied ingesteld op het midden van de kaart."));
                   }}
                 />
             )}
@@ -439,7 +443,7 @@ export default function App() {
         {pendingCall && !activeCall && (
           <div className="absolute inset-x-0 top-[calc(env(safe-area-inset-top)+64px)] z-30 flex justify-center">
             <button type="button" className="rounded-full border border-border bg-[rgba(10,13,20,.85)] px-4 py-2 text-[12px] text-[#cfd3dd] backdrop-blur" onClick={() => setPendingCall(null)}>
-              Gesprek komt eraan · tik om te annuleren
+              {t("Gesprek komt eraan · tik om te annuleren")}
             </button>
           </div>
         )}
@@ -460,20 +464,20 @@ export default function App() {
         )}
 
         {route.name === "kaart" && dest && (
-          <div className="absolute inset-x-4 bottom-[160px] z-20 rounded-2xl border border-border bg-[rgba(10,13,20,.92)] p-4 backdrop-blur" role="region" aria-label="Route">
+          <div className="absolute inset-x-4 bottom-[160px] z-20 rounded-2xl border border-border bg-[rgba(10,13,20,.92)] p-4 backdrop-blur" role="region" aria-label={t("Route")}>
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <p className="eyebrow text-cyan">Naar</p>
+                <p className="eyebrow text-cyan">{t("Naar")}</p>
                 <p className="mt-1 truncate text-[15px] font-medium">{dest.name}</p>
                 {walkRoute && <p className="mt-1 text-[13px] leading-snug text-[#cfd3dd]">{walkRoute.text}</p>}
               </div>
-              <button type="button" className="chip h-9! w-9! shrink-0" aria-label="Route wissen" onClick={() => (setDest(null), setWalkRoute(null))}>
+              <button type="button" className="chip h-9! w-9! shrink-0" aria-label={t("Route wissen")} onClick={() => (setDest(null), setWalkRoute(null))}>
                 <Icon name="close" size={15} />
               </button>
             </div>
             {!walkRoute && (
               <button type="button" className="btn glass mt-3 h-11!" onClick={planRoute} disabled={routing}>
-                <span>{routing ? "Route zoeken..." : "Kies een rustige route"}</span>
+                <span>{routing ? t("Route zoeken...") : t("Kies een rustige route")}</span>
               </button>
             )}
           </div>

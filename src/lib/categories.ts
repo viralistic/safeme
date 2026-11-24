@@ -1,6 +1,8 @@
 // Report categories. They describe behaviour and places, never who a person is.
 // A person who seems to need help is a welfare signal, not a threat.
 
+import { t } from "./i18n.ts";
+
 export type ReportType = "situation" | "incident";
 
 export type IconName =
@@ -35,25 +37,26 @@ export interface Category {
 }
 
 export const CATEGORIES: Category[] = [
-  { id: "drugsgebruik", type: "situation", label: "Drugsgebruik", ttlMinutes: 180, icon: "pill" },
-  { id: "overlast", type: "situation", label: "Overlast", ttlMinutes: 120, icon: "volume" },
-  { id: "inbraakpoging", type: "situation", label: "Inbraakpoging", ttlMinutes: 720, icon: "door" },
-  { id: "iemand-in-nood", type: "situation", label: "Iemand in nood", welfare: true, ttlMinutes: 60, icon: "hand" },
-  { id: "onveilig-gevoel", type: "situation", label: "Onveilig gevoel", ttlMinutes: 240, icon: "eye" },
-  { id: "donkere-plek", type: "situation", label: "Donkere plek", ttlMinutes: 4320, icon: "lamp", forward: "city" },
-  { id: "rook-of-alarm", type: "situation", label: "Rook of alarm", ttlMinutes: 60, icon: "flame", urgent: true },
-  { id: "uitbuiting", type: "situation", label: "Uitbuiting", ttlMinutes: 10080, icon: "eye", private: true },
+  { id: "drugsgebruik", type: "situation", label: t("Drugsgebruik"), ttlMinutes: 180, icon: "pill" },
+  { id: "overlast", type: "situation", label: t("Overlast"), ttlMinutes: 120, icon: "volume" },
+  { id: "inbraakpoging", type: "situation", label: t("Inbraakpoging"), ttlMinutes: 720, icon: "door" },
+  { id: "iemand-in-nood", type: "situation", label: t("Iemand in nood"), welfare: true, ttlMinutes: 60, icon: "hand" },
+  { id: "onveilig-gevoel", type: "situation", label: t("Onveilig gevoel"), ttlMinutes: 240, icon: "eye" },
+  { id: "donkere-plek", type: "situation", label: t("Donkere plek"), ttlMinutes: 4320, icon: "lamp", forward: "city" },
+  { id: "rook-of-alarm", type: "situation", label: t("Rook of alarm"), ttlMinutes: 60, icon: "flame", urgent: true },
+  { id: "explosie", type: "situation", label: t("Explosie of knal"), ttlMinutes: 1440, icon: "alert", urgent: true },
+  { id: "uitbuiting", type: "situation", label: t("Uitbuiting"), ttlMinutes: 10080, icon: "eye", private: true },
 
-  { id: "nageroepen", type: "incident", label: "Nageroepen", ttlMinutes: 240, icon: "megaphone" },
-  { id: "gevolgd", type: "incident", label: "Gevolgd", ttlMinutes: 360, icon: "footsteps" },
-  { id: "bedreigd", type: "incident", label: "Bedreigd", ttlMinutes: 720, icon: "alert" },
-  { id: "bestolen", type: "incident", label: "Bestolen", ttlMinutes: 1440, icon: "bag" },
-  { id: "aangevallen", type: "incident", label: "Aangevallen", ttlMinutes: 1440, icon: "shield" },
+  { id: "nageroepen", type: "incident", label: t("Nageroepen"), ttlMinutes: 240, icon: "megaphone" },
+  { id: "gevolgd", type: "incident", label: t("Gevolgd"), ttlMinutes: 360, icon: "footsteps" },
+  { id: "bedreigd", type: "incident", label: t("Bedreigd"), ttlMinutes: 720, icon: "alert" },
+  { id: "bestolen", type: "incident", label: t("Bestolen"), ttlMinutes: 1440, icon: "bag" },
+  { id: "aangevallen", type: "incident", label: t("Aangevallen"), ttlMinutes: 1440, icon: "shield" },
 ];
 
 export const TYPE_LABEL: Record<ReportType, string> = {
-  situation: "Ik zie iets",
-  incident: "Overkomt mij",
+  situation: t("Ik zie iets"),
+  incident: t("Overkomt mij"),
 };
 
 export function categoriesFor(type: ReportType): Category[] {

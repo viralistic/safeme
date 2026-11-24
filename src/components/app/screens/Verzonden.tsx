@@ -3,6 +3,7 @@ import { getCategory } from "@/lib/categories";
 import Icon from "../Icon";
 import { ASSETS } from "@/lib/assets";
 import { nextSteps } from "@/lib/nextSteps";
+import { t } from "@/lib/i18n";
 
 interface Props {
   status: "approved" | "pending" | "private";
@@ -26,23 +27,23 @@ export default function Verzonden({ status, category, onDone }: Props) {
         </span>
         <h1 id="sent-title" ref={title} tabIndex={-1} className="display text-[28px] text-white outline-none">
           {status === "approved" ? (
-            <>Gedaan. De buurt<br />ziet jouw melding</>
+            <>{t("Gedaan. De buurt")}<br />{t("ziet jouw melding")}</>
           ) : status === "private" ? (
-            <>Gedaan. Alleen de<br />politie ziet dit</>
+            <>{t("Gedaan. Alleen de")}<br />{t("politie ziet dit")}</>
           ) : (
-            <>Gedaan. We kijken<br />even mee</>
+            <>{t("Gedaan. We kijken")}<br />{t("even mee")}</>
           )}
         </h1>
         <p className="max-w-[240px] text-[13px] leading-normal text-[#cfd3dd]">
           {status === "approved"
-            ? `Hij staat nu live en vervaagt vanzelf over ${hours === 1 ? "een uur" : `${hours} uur`}. Bij nood bel 112.`
+            ? hours === 1 ? t("Hij staat nu live en vervaagt vanzelf over een uur. Bij nood bel 112.") : t("Hij staat nu live en vervaagt vanzelf over {n} uur. Bij nood bel 112.", { n: hours })
             : status === "private"
-              ? "Je melding staat niet op de openbare kaart. Meldt nog iemand deze plek, dan ziet de politie het. Bij nood bel 112."
-              : "Je melding wordt kort gecontroleerd en verschijnt daarna op de kaart. Bij nood bel 112."}
+              ? t("Je melding staat niet op de openbare kaart. Meldt nog iemand deze plek, dan ziet de politie het. Bij nood bel 112.")
+              : t("Je melding wordt kort gecontroleerd en verschijnt daarna op de kaart. Bij nood bel 112.")}
         </p>
         {steps.length > 0 && (
           <div className="mt-2 flex w-full max-w-[320px] flex-col gap-2 text-left">
-            <p className="eyebrow text-center text-muted">Volgende stap, als je wilt</p>
+            <p className="eyebrow text-center text-muted">{t("Volgende stap, als je wilt")}</p>
             {steps.map((st) => (
               <a key={st.href} href={st.href} target="_blank" rel="noopener" className="glass rounded-xl px-4 py-3">
                 <span className="block text-[14px] font-medium">{st.label}</span>
@@ -54,7 +55,7 @@ export default function Verzonden({ status, category, onDone }: Props) {
       </div>
       <div className="relative z-10 px-6 pb-6">
         <button type="button" className="btn glass glass-red" onClick={onDone}>
-          <span>Terug naar kaart</span>
+          <span>{t("Terug naar kaart")}</span>
         </button>
       </div>
     </section>

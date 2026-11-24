@@ -1,7 +1,7 @@
 // Dutch is the source language. English for visitors and expats: phones that are
 // not set to Dutch get English automatically, and Jij lets anyone switch.
 
-import { EN } from "./i18n.en";
+import { EN } from "./i18n.en.ts";
 
 export type Lang = "nl" | "en";
 const KEY = "sm.lang";
@@ -16,6 +16,7 @@ function detect(): Lang {
 }
 
 export const lang: Lang = detect();
+if (typeof document !== "undefined") document.documentElement.lang = lang;
 
 /** Translate a Dutch string. `{name}` placeholders are filled from `vars`. */
 export function t(nl: string, vars?: Record<string, string | number>): string {

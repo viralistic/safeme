@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { deleteScenario, listScenarios, newId, playCaller, saveScenario, type Scenario } from "@/lib/fakecall";
 import Icon from "../Icon";
 import { Header } from "../ui";
+import { t } from "@/lib/i18n";
 
 export default function Bellen({ onBack }: { onBack: () => void }) {
   const [list, setList] = useState<Scenario[]>([]);
@@ -14,12 +15,12 @@ export default function Bellen({ onBack }: { onBack: () => void }) {
 
   return (
     <section className="screen" aria-labelledby="bellen-title">
-      <Header title={<span id="bellen-title">Nepgesprek</span>} onBack={onBack} />
+      <Header title={<span id="bellen-title">{t("Nepgesprek")}</span>} onBack={onBack} />
       <div className="flex-1 overflow-y-auto px-[22px] pt-4 pb-6">
         <p className="text-[14px] leading-snug text-[#cfd3dd]">
-          Stel vooraf in wie er belt en wat diegene zegt. Op de kaart start je het gesprek met de belknop. Het scherm lijkt op een gewoon telefoongesprek.
+          {t("Stel vooraf in wie er belt en wat diegene zegt. Op de kaart start je het gesprek met de belknop. Het scherm lijkt op een gewoon telefoongesprek.")}
         </p>
-        <p className="mt-2 text-[12px] text-muted">Opnames blijven op je telefoon en worden nooit verstuurd.</p>
+        <p className="mt-2 text-[12px] text-muted">{t("Opnames blijven op je telefoon en worden nooit verstuurd.")}</p>
         <ul className="mt-5 flex flex-col gap-2">
           {list.map((s) => (
             <li key={s.id} className="rounded-xl border border-border bg-surface px-4 py-3">
@@ -27,19 +28,19 @@ export default function Bellen({ onBack }: { onBack: () => void }) {
                 <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-surface2 text-[14px] font-semibold">{s.name.slice(0, 1)}</span>
                 <div className="min-w-0 flex-1">
                   <p className="text-[14px] font-medium">{s.name}</p>
-                  <p className="truncate text-[12px] text-muted">Jij zegt: "{s.phrase}"</p>
+                  <p className="truncate text-[12px] text-muted">{t("Jij zegt")}: "{s.phrase}"</p>
                 </div>
                 <button type="button" className="chip h-10! w-10!" onClick={() => setEdit(s)} aria-label={`${s.name} aanpassen`}>
                   <Icon name="mic" size={16} />
                 </button>
               </div>
               <p className="mt-2 text-[13px] leading-snug text-[#cfd3dd]">"{s.text}"</p>
-              <p className="mt-1 text-[11px] text-muted">{s.audio ? "Eigen opname" : "Wordt voorgelezen door je telefoon tot je een opname maakt"}</p>
+              <p className="mt-1 text-[11px] text-muted">{s.audio ? t("Eigen opname") : t("Wordt voorgelezen door je telefoon tot je een opname maakt")}</p>
             </li>
           ))}
         </ul>
         <button type="button" className="btn glass mt-4" onClick={() => setEdit({ id: newId(), name: "", phrase: "", text: "", audio: null, createdAt: Date.now() })}>
-          <span>Nieuw gesprek</span>
+          <span>{t("Nieuw gesprek")}</span>
         </button>
       </div>
     </section>
@@ -71,13 +72,13 @@ function Editor({ scenario, onDone }: { scenario: Scenario; onDone: () => void }
       setRecording(true);
       setTimeout(() => r.state === "recording" && r.stop(), 30_000);
     } catch {
-      setError("Je microfoon is niet beschikbaar. Je kunt ook een geluidsbestand kiezen.");
+      setError(t("Je microfoon is niet beschikbaar. Je kunt ook een geluidsbestand kiezen."));
     }
   }
 
   return (
     <section className="screen" aria-labelledby="edit-title">
-      <Header title={<span id="edit-title">{scenario.name || "Nieuw gesprek"}</span>} onBack={onDone} />
+      <Header title={<span id="edit-title">{scenario.name || t("Nieuw gesprek")}</span>} onBack={onDone} />
       <form
         className="flex flex-1 flex-col gap-4 overflow-y-auto px-[22px] pt-4 pb-6"
         onSubmit={async (e) => {
@@ -87,34 +88,34 @@ function Editor({ scenario, onDone }: { scenario: Scenario; onDone: () => void }
           onDone();
         }}
       >
-        <Field id="fc-name" label="Naam op het scherm" value={s.name} placeholder="Pap" onChange={(name) => setS({ ...s, name })} />
-        <Field id="fc-phrase" label="Wat jij zegt als je opneemt" value={s.phrase} placeholder="Hey pap" onChange={(phrase) => setS({ ...s, phrase })} />
+        <Field id="fc-name" label={t("Naam op het scherm")} value={s.name} placeholder={t("Pap")} onChange={(name) => setS({ ...s, name })} />
+        <Field id="fc-phrase" label={t("Wat jij zegt als je opneemt")} value={s.phrase} placeholder={t("Hey pap")} onChange={(phrase) => setS({ ...s, phrase })} />
         <label htmlFor="fc-text" className="flex flex-col gap-1.5 text-[12px] text-muted">
-          Wat diegene zegt
+          {t("Wat diegene zegt")}
           <textarea
             id="fc-text"
             rows={3}
             maxLength={240}
             value={s.text}
             onChange={(e) => setS({ ...s, text: e.target.value })}
-            placeholder="Ik sta om de hoek met de auto, waar ben je?"
+            placeholder={t("Ik sta om de hoek met de auto, waar ben je?")}
             className="resize-none rounded-xl border border-border bg-surface px-3 py-2.5 text-[14px] text-fg focus:border-cyan focus:outline-none"
           />
         </label>
 
         <div className="rounded-xl border border-border bg-surface p-4">
-          <p className="text-[14px] font-medium">Opname</p>
-          <p className="mt-1 text-[12px] leading-snug text-muted">Laat diegene de tekst inspreken, of kies een bestand. Zonder opname leest je telefoon de tekst voor.</p>
+          <p className="text-[14px] font-medium">{t("Opname")}</p>
+          <p className="mt-1 text-[12px] leading-snug text-muted">{t("Laat diegene de tekst inspreken, of kies een bestand. Zonder opname leest je telefoon de tekst voor.")}</p>
           <div className="mt-3 flex flex-wrap gap-2">
             {recording ? (
               <button type="button" className="btn glass glass-red h-11! w-auto! px-4" onClick={() => rec.current?.stop()}>
                 <Icon name="stop" size={16} />
-                <span>Stop</span>
+                <span>{t("Stop")}</span>
               </button>
             ) : (
               <button type="button" className="btn glass h-11! w-auto! px-4" onClick={record}>
                 <Icon name="mic" size={16} />
-                <span>Opnemen</span>
+                <span>{t("Opnemen")}</span>
               </button>
             )}
             <button
@@ -127,17 +128,17 @@ function Editor({ scenario, onDone }: { scenario: Scenario; onDone: () => void }
               disabled={!s.audio && !s.text}
             >
               <Icon name="play" size={16} />
-              <span>Luister</span>
+              <span>{t("Luister")}</span>
             </button>
             {s.audio && (
               <button type="button" className="btn glass h-11! w-auto! px-4" onClick={() => setS({ ...s, audio: null })}>
                 <Icon name="trash" size={16} />
-                <span>Opname wissen</span>
+                <span>{t("Opname wissen")}</span>
               </button>
             )}
           </div>
           <label htmlFor="fc-file" className="mt-3 block text-[12px] text-muted">
-            Of kies een geluidsbestand
+            {t("Of kies een geluidsbestand")}
             <input
               id="fc-file"
               type="file"
@@ -158,7 +159,7 @@ function Editor({ scenario, onDone }: { scenario: Scenario; onDone: () => void }
 
         <div className="mt-auto flex flex-col gap-1 pt-2">
           <button type="submit" className="btn glass glass-red" disabled={!valid}>
-            <span>Bewaar</span>
+            <span>{t("Bewaar")}</span>
           </button>
           <button
             type="button"
@@ -168,7 +169,7 @@ function Editor({ scenario, onDone }: { scenario: Scenario; onDone: () => void }
               onDone();
             }}
           >
-            Verwijder dit gesprek
+            {t("Verwijder dit gesprek")}
           </button>
         </div>
       </form>
