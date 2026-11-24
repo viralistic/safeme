@@ -2,6 +2,7 @@
 // victim support; it points people to the right door.
 
 import { t } from "./i18n";
+import { CITY } from "./city";
 
 export interface NextStep {
   label: string;
@@ -21,7 +22,7 @@ const BY_CATEGORY: Record<string, NextStep[]> = {
   inbraakpoging: [ANONYMOUS, POLICE_REPORT],
   "iemand-in-nood": [],
   "onveilig-gevoel": [],
-  "donkere-plek": [{ label: t("Ook melden bij de gemeente"), href: "https://meldingen.amsterdam.nl", detail: t("Kapotte lamp of donkere plek in de openbare ruimte") }],
+  "donkere-plek": [{ label: t("Ook melden bij de gemeente"), href: CITY.reportUrl, detail: t("Kapotte lamp of donkere plek in de openbare ruimte") }],
   "rook-of-alarm": [],
   explosie: [
     { label: t("Slachtofferhulp"), href: "https://www.slachtofferhulp.nl", detail: t("Ook steun voor buren na een explosie") },

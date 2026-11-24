@@ -1,7 +1,9 @@
 import { fuzz, type LatLon } from "./fuzz";
 
-/** Default view: Amsterdam Oost. */
-export const DEFAULT_CENTER: LatLon = { lat: 52.3606, lon: 4.9276 };
+import { CITY } from "./city";
+
+/** Default view: the city's centre (Amsterdam Oost unless configured). */
+export const DEFAULT_CENTER: LatLon = CITY.center;
 
 export type LocationSource = "device" | "map";
 

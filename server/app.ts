@@ -452,6 +452,40 @@ export function createApp(cfg: Config) {
 
     if (method === "GET" && path === "/api/config") return { vapidPublicKey: cfg.vapid?.publicKey ?? null };
 
+    // Public, anonymised monthly summary. Only counts, never single reports or places.
+    if (method === "GET" && path === "/api/summary") {
+      const q = new URL(req.url ?? "", "http://x").searchParams.get("month") ?? "";
+      const m = q.match(/^(\d{4})-(\d{2})$/);
+      const ref = new Date(now());
+      const year = m ? Number(m[1]) : ref.getUTCFullYear();
+      const month = m ? Number(m[2]) - 1 : ref.getUTCMonth();
+      const range = (y: number, mo: number) => [Date.UTC(y, mo, 1), Date.UTC(y, mo + 1, 1)] as const;
+      const [from, to] = range(year, month);
+      const [pFrom, pTo] = range(year, month - 1);
+      const count = (a: number, b: number, extra = "") =>
+        (db.prepare(`select count(*) n from reports where private = 0 and created_at >= ? and created_at < ? ${extra}`).get(a, b) as { n: number }).n;
+      const byCategory = db
+        .prepare("select category, count(*) n from reports where private = 0 and status = 'approved' and created_at >= ? and created_at < ? group by category order by n desc")
+        .all(from, to) as { category: string; n: number }[];
+      const hourOf = new Intl.DateTimeFormat("en-GB", { hour: "numeric", hourCycle: "h23", timeZone: cfg.timeZone ?? "Europe/Amsterdam" });
+      const hours = Array.from({ length: 24 }, () => 0);
+      for (const r of db.prepare("select created_at from reports where private = 0 and status = 'approved' and created_at >= ? and created_at < ?").all(from, to) as { created_at: number }[])
+        hours[Number(hourOf.format(new Date(r.created_at))) % 24]++;
+      const total = count(from, to, "and status = 'approved'");
+      const removed = count(from, to, "and status = 'removed'");
+      return {
+        month: `${year}-${String(month + 1).padStart(2, "0")}`,
+        total,
+        previous: count(pFrom, pTo, "and status = 'approved'"),
+        removedShare: total + removed ? removed / (total + removed) : 0,
+        confirmations: (db.prepare("select count(*) n from confirmations c join reports r on r.id = c.report_id where r.created_at >= ? and r.created_at < ?").get(from, to) as { n: number }).n,
+        darkSpots: count(from, to, "and status = 'approved' and category = 'donkere-plek'"),
+        privateSignals: (db.prepare("select count(*) n from reports where private = 1 and created_at >= ? and created_at < ?").get(from, to) as { n: number }).n,
+        byCategory,
+        hours,
+      };
+    }
+
     // Moderation API for n8n.
     if (seg[1] === "admin") {
       admin(req);

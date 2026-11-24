@@ -9,6 +9,11 @@ interface ImportMetaEnv {
   /** OSRM-compatible routing base URL for walking routes. */
   readonly PUBLIC_ROUTING_URL?: string;
   readonly PUBLIC_PLAUSIBLE_DOMAIN?: string;
+  readonly PUBLIC_CITY_NAME?: string;
+  /** "lat,lon" */
+  readonly PUBLIC_CITY_CENTER?: string;
+  readonly PUBLIC_CITY_REPORT_URL?: string;
+  readonly PUBLIC_CITY_STATS_URL?: string;
   /** Set by the single-file demo build (artifact/). */
   readonly PUBLIC_SINGLE_FILE?: string;
 }

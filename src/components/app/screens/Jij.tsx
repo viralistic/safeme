@@ -37,6 +37,15 @@ export default function Jij({ onReset, onCalls }: { onReset: () => void; onCalls
           <Icon name="back" size={16} className="rotate-180 text-muted" />
         </button>
 
+        <a href="/cijfers" className="mt-2 flex w-full items-center gap-3 rounded-2xl border border-border bg-surface p-4 text-left">
+          <Icon name="clock" size={18} className="shrink-0 text-cyan" />
+          <span className="flex-1">
+            <span className="block text-[14px] font-medium">{t("Cijfers per maand")}</span>
+            <span className="mt-0.5 block text-[13px] leading-snug text-muted">{t("Hoe rustig het is, zonder losse meldingen.")}</span>
+          </span>
+          <Icon name="back" size={16} className="rotate-180 text-muted" />
+        </a>
+
         <div className="mt-4 rounded-2xl border border-border bg-surface p-4">
           <p className="text-[14px] font-medium">{t("Geen alarmdienst")}</p>
           <p className="mt-1 text-[13px] leading-snug text-muted">

@@ -84,3 +84,14 @@ describe("api", () => {
     expect(row.note).toBeNull();
   });
 });
+
+describe("public summary", () => {
+  it("counts reports per month without exposing any report", async () => {
+    const res = await fetch(`${base}/summary?month=2026-11`);
+    const out = await res.json();
+    expect(out.month).toBe("2026-11");
+    expect(out.total).toBeGreaterThanOrEqual(1);
+    expect(out.byCategory[0]).toHaveProperty("category");
+    expect(JSON.stringify(out)).not.toMatch(/lat|lon|note|reporter/);
+  });
+});
