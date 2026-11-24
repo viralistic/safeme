@@ -6,8 +6,12 @@ import { EN } from "./i18n.en.ts";
 export type Lang = "nl" | "en";
 const KEY = "sm.lang";
 
+// The native app sets these before anything else loads (mobile/src/boot.ts).
+const host = globalThis as { __SM_LANG__?: Lang; __SM_SET_LANG__?: (l: Lang) => void };
+
 function detect(): Lang {
-  if (typeof window === "undefined") return "nl";
+  if (host.__SM_LANG__ === "nl" || host.__SM_LANG__ === "en") return host.__SM_LANG__;
+  if (typeof window === "undefined" || typeof localStorage === "undefined") return "nl";
   try {
     const saved = localStorage.getItem(KEY);
     if (saved === "nl" || saved === "en") return saved;
@@ -16,7 +20,7 @@ function detect(): Lang {
 }
 
 export const lang: Lang = detect();
-if (typeof document !== "undefined") document.documentElement.lang = lang;
+if (typeof document !== "undefined" && document.documentElement) document.documentElement.lang = lang;
 
 /** Translate a Dutch string. `{name}` placeholders are filled from `vars`. */
 export function t(nl: string, vars?: Record<string, string | number>): string {
@@ -26,6 +30,7 @@ export function t(nl: string, vars?: Record<string, string | number>): string {
 }
 
 export function setLang(l: Lang): void {
+  if (host.__SM_SET_LANG__) return host.__SM_SET_LANG__(l);
   try {
     localStorage.setItem(KEY, l);
   } catch {}

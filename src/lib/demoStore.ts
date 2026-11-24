@@ -192,11 +192,13 @@ export function createDemoStore(getCenter: () => LatLon): ReportStore {
 
     subscribe(fn) {
       listeners.add(fn);
+      // Other tabs (web only): the native app has no storage events.
+      const canListen = typeof window !== "undefined" && typeof window.addEventListener === "function";
       const onStorage = (e: StorageEvent) => e.key === KEY && fn();
-      window.addEventListener("storage", onStorage);
+      if (canListen) window.addEventListener("storage", onStorage);
       return () => {
         listeners.delete(fn);
-        window.removeEventListener("storage", onStorage);
+        if (canListen) window.removeEventListener("storage", onStorage);
       };
     },
 

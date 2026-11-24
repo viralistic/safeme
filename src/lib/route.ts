@@ -5,8 +5,9 @@ import { getCategory } from "./categories";
 import type { LatLon } from "./fuzz";
 import type { PublicReport } from "./types";
 
-/** OSRM-compatible base URL. Default: FOSSGIS in Germany; self-host for full control. */
-export const ROUTING_URL = import.meta.env.PUBLIC_ROUTING_URL || "https://routing.openstreetmap.de/routed-foot";
+import { CITY } from "./city";
+
+const ROUTING_URL = CITY.routingUrl;
 
 export interface ScoredRoute {
   coords: [number, number][];

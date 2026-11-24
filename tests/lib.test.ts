@@ -56,6 +56,7 @@ describe("copy rules", () => {
     });
   walk("src");
   walk("server");
+  walk("mobile/src");
   walk("public");
 
   it("has no em dashes and no emoji", () => {
